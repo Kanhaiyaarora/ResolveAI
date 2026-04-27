@@ -11,12 +11,12 @@ if (!process.env.JWT_EXPIRE) {
   throw new Error("JWT_EXPIRE is missing in environment variable");
 }
 
-// if (!process.env.GOOGLE_CLIENT_ID) {
-//   throw new Error("GOOGLE_CLIENT_ID is missing in environment variable");
-// }
-// if (!process.env.GOOGLE_CLIENT_SECRET) {
-//   throw new Error("GOOGLE_CLIENT_SECRET is missing in environment variable");
-// }
+if (!process.env.GOOGLE_CLIENT_ID) {
+  throw new Error("GOOGLE_CLIENT_ID is missing in environment variable");
+}
+if (!process.env.GOOGLE_CLIENT_SECRET) {
+  throw new Error("GOOGLE_CLIENT_SECRET is missing in environment variable");
+}
 
 if (!process.env.IMAGEKIT_PRIVATE_KEY) {
   throw new Error("IMAGEKIT_PRIVATE_KEY is missing in environment variable");
