@@ -221,6 +221,7 @@ This platform solves these problems by combining:
 Allow multiple businesses to use one platform securely.
 
 ## Features:
+
 * Tenant registration
 * Unique tenant IDs
 * Separate business data isolation
@@ -489,7 +490,7 @@ Recommended:
 * email
 * password
 * role
-* tenantId -> role == "businessAdmin" or "supportAgent" ? tenantId : null
+* tenantId
 * status
 
 ### Tenant Model
@@ -562,7 +563,8 @@ Recommended:
 ## Must Build:
 
 ### Landing Page:
-[28-04-2026 12:39 AM] Paras: * SaaS product intro
+
+* SaaS product intro
 * Pricing section
 * Demo CTA
 
