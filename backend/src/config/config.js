@@ -22,6 +22,13 @@ if (!process.env.IMAGEKIT_PRIVATE_KEY) {
   throw new Error("IMAGEKIT_PRIVATE_KEY is missing in environment variable");
 }
 
+if (!process.env.PINECONE_API_KEY) {
+  throw new Error("PINECONE_API_KEY is missing in environment variable");
+}
+if (!process.env.PINECONE_INDEX_NAME) {
+  throw new Error("PINECONE_INDEX_NAME is missing in environment variable");
+}
+
 export const CONFIG = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
@@ -29,4 +36,6 @@ export const CONFIG = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
+  PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+  PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME,
 };
