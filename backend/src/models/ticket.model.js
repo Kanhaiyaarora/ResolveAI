@@ -13,6 +13,7 @@ const ticketSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
       required: true,
+      index: true,
     },
 
     conversationId: {
@@ -20,8 +21,15 @@ const ticketSchema = new mongoose.Schema(
       ref: "Conversation",
     },
 
-    subject: String,
-    description: String,
+    subject: {
+      type: String,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
 
     status: {
       type: String,
@@ -34,9 +42,10 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",
+      index: true,
     },
 
-    // 🔥 MULTIPLE AGENTS
+    // 🔥 MULTIPLE AGENTS SUPPORT
     assignedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,12 +53,31 @@ const ticketSchema = new mongoose.Schema(
       },
     ],
 
-    tags: [String],
-    slaDeadline: Date,
+    tags: {
+      type: [String],
+      default: [],
+    },
+
+    slaDeadline: {
+      type: Date,
+      index: true, // useful for SLA tracking
+    },
+
+    //  TRACK WHO CREATED TICKET 
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true },
 );
 
+
+// COMPOUND INDEX (important for performance)
 ticketSchema.index({ companyId: 1, status: 1 });
+
+//  OPTIONAL: sort by priority + SLA
+ticketSchema.index({ priority: 1, slaDeadline: 1 });
 
 export default mongoose.model("Ticket", ticketSchema);
