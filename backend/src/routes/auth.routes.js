@@ -3,41 +3,33 @@ import {
   validateLoginUser,
   validateRegisterUser,
 } from "../validators/auth.validator.js";
+
 import {
   registerUserController,
   loginUserController,
   logoutUserController,
   getMeController,
 } from "../controllers/auth.controller.js";
-import passport from "passport";
+
+import { authenticateUser } from "../middlewares/auth.middleware.js";
 
 const authRouter = Router();
 
+
+// 🔐 /api/auth/register
 authRouter.post("/register", validateRegisterUser, registerUserController);
 
-// complete route /api/auth/login
+
+// 🔑 /api/auth/login
 authRouter.post("/login", validateLoginUser, loginUserController);
 
-// complete route /api/auth/google
-// authRouter.get(
-//   "/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] }),
-// );
 
-// complete route /api/auth/google/callback
-// authRouter.get(
-//   "/google/callback",
-//   passport.authenticate("google", {
-//     session: false,
-//     failureRedirect: "/login",
-//   }),
-//   googleAuthController,
-// );
+// 🚪 /api/auth/logout (protected)
+authRouter.post("/logout", authenticateUser, logoutUserController);
 
-// complete route /api/auth/logout
-authRouter.post("/logout", logoutUserController);
 
-// complete route /api/auth/me
-// authRouter.get("/me", authenticateUser, getMeController);
+// 👤 /api/auth/me (protected)
+authRouter.get("/me", authenticateUser, getMeController);
+
 
 export default authRouter;

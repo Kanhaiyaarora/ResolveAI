@@ -6,7 +6,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"])
 const serverStarted = () => {
   try {
     app.listen(3000, () => {
-      console.log(" Server 🚀 Started 🔥");
+      console.log(" Server 🚀 Started🔥 running at port-3000");
     });
     connectToDb();
   } catch (error) {
