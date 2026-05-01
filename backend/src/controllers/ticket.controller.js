@@ -1,6 +1,4 @@
 import Ticket from "../models/ticket.model.js";
-import User from "../models/user.model.js";
-
 
 // 📝 CREATE TICKET
 export const createTicketController = async (req, res) => {
@@ -12,6 +10,13 @@ export const createTicketController = async (req, res) => {
       description,
       priority,
     } = req.body;
+
+if(!companyId || !customerId || !subject || !description || !priority){
+  return res.status(400).json({
+    success: false,
+    message: "All fields are required",
+  });
+}
 
     const ticket = await Ticket.create({
       companyId,
@@ -29,6 +34,7 @@ export const createTicketController = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("Error in createTicketController:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -59,6 +65,7 @@ export const getAllTicketsController = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("Error in getAllTicketsController:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -120,6 +127,7 @@ export const assignTicketController = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("Error in assignTicketController:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -155,6 +163,7 @@ export const updateTicketStatusController = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("Error in updateTicketStatusController:", error);
     res.status(500).json({
       success: false,
       message: error.message,
