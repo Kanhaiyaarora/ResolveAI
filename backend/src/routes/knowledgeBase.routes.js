@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { uploadDocumentController } from "../controllers/knowledgeBase.controller.js";
+import { uploadDocumentController, getKnowledgeBaseController } from "../controllers/knowledgeBase.controller.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/role.middleware.js";
 import fs from "fs";
@@ -45,8 +45,16 @@ kbRouter.post(
     "/upload", 
     authenticateUser, 
     authorizeRoles("admin"), 
-    upload.single("document"), 
+    upload.single("file"),  // must match the FormData key in frontend
     uploadDocumentController
+);
+
+// 📚 GET ALL KNOWLEDGE BASE DOCUMENTS (ADMIN ONLY)
+kbRouter.get(
+    "/",
+    authenticateUser,
+    authorizeRoles("admin"),
+    getKnowledgeBaseController
 );
 
 export default kbRouter;

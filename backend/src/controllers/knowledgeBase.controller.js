@@ -77,3 +77,27 @@ export const uploadDocumentController = async (req, res) => {
         });
     }
 };
+
+/**
+ * Returns all knowledge base documents for the authenticated company (admin only).
+ */
+export const getKnowledgeBaseController = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const docs = await KnowledgeBase.find({ companyId })
+            .sort({ createdAt: -1 })
+            .select("title type createdAt createdBy")
+            .populate("createdBy", "name");
+
+        res.status(200).json({
+            success: true,
+            count: docs.length,
+            documents: docs,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
