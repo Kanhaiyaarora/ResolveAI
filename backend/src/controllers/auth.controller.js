@@ -25,6 +25,7 @@ const sendTokenResponse = async (user, res, message, statusCode = 200) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            companyId: user.companyId
         },
     });
 };
