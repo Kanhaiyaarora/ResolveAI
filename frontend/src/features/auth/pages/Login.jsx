@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Mail, Lock, ArrowRight, AlertCircle, Shield, Headset } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shield, Headset } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 
 import AuthLayout from "../components/AuthLayout";
 import InputField from "../components/InputField";
@@ -11,6 +12,7 @@ import { useAuth } from "../hook/useAuth";
 const Login = () => {
   const navigate = useNavigate();
   const { handleLoginUser } = useAuth();
+  const { error: reduxError, loading: reduxLoading } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,46 +21,36 @@ const Login = () => {
   
   const [role, setRole] = useState("admin"); // Default to admin
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
+  const error = localError || reduxError;
+  const isLoading = reduxLoading;
 
   // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError("");
+    if (localError) setLocalError("");
   };
 
   // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setLocalError("");
 
     // Validation
     if (!formData.email || !formData.password) {
-      setError("Please fill in all required fields.");
+      setLocalError("Please fill in all required fields.");
       return;
     }
 
-    setIsLoading(true);
+    const user = await handleLoginUser({
+      email: formData.email,
+      password: formData.password,
+      role,
+    });
 
-    try {
-      const user = await handleLoginUser({
-        email: formData.email,
-        password: formData.password,
-        role,
-      });
-
-      if (user) {
-        // Redirect based on selected role
-        navigate(`/${role}`);
-      } else {
-        // useAuth will dispatch the error which is accessible via redux, but we handle local visual error if needed.
-        // Or if user is null, the hook might have failed.
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (user) {
+      // Redirect based on selected role
+      navigate(`/${role}`);
     }
   };
 
@@ -82,7 +74,7 @@ const Login = () => {
                 type="button"
                 onClick={() => {
                   setRole(r);
-                  setError("");
+                  setLocalError("");
                 }}
                 className={`relative flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${
                   role === r ? "text-white shadow-sm" : "text-zinc-400 hover:text-zinc-300"
@@ -104,25 +96,10 @@ const Login = () => {
             ))}
           </div>
 
-          {/* Error Message */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-center gap-3 text-red-400 text-sm font-medium overflow-hidden"
-              >
-                <AlertCircle size={16} className="shrink-0" />
-                {error}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Inputs with Staggered Animation */}
           <motion.div 
             variants={{
-              show: { transition: { staggerChildren: 0.1 } }
+              show: { transition: { staggerChildren: 0.05 } }
             }}
             initial="hidden"
             animate="show"
@@ -138,34 +115,37 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 icon={Mail}
-                error={error && error.includes("email") ? error : ""}
               />
             </motion.div>
 
             <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-              <div className="flex flex-col gap-1">
-                <InputField
-                  label="Password"
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  icon={Lock}
-                  error={error && error.includes("Password") ? error : ""}
-                />
-                <div className="flex justify-end px-1">
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs text-slate-400 hover:text-emerald-500 transition-colors font-medium"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
+              <InputField
+                label="Password"
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                icon={Lock}
+              />
             </motion.div>
           </motion.div>
+
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-red-400 text-sm font-medium flex items-center gap-3 overflow-hidden"
+              >
+                <Shield size={16} className="shrink-0" />
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Submit Button */}
           <Button

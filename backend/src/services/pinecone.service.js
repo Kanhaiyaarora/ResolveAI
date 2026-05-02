@@ -10,7 +10,7 @@ import { pineconeIndex } from "../config/pinecone.js";
 export const upsertVectors = async (namespace, vectors) => {
     try {
         const index = pineconeIndex.namespace(namespace);
-        await index.upsert(vectors);
+        await index.upsert({ records: vectors });
         console.log(`Successfully upserted ${vectors.length} vectors to namespace ${namespace}`);
     } catch (error) {
         console.error("Error in Pinecone upsertVectors:", error);

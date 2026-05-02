@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Mail, Lock, User, ArrowRight, Shield, Headset, Building, Hash } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 
 import AuthLayout from "../components/AuthLayout";
 import InputField from "../components/InputField";
@@ -11,6 +12,7 @@ import { useAuth } from "../hook/useAuth";
 const Register = () => {
   const navigate = useNavigate();
   const { handleRegisterUser } = useAuth();
+  const { error: reduxError, loading: reduxLoading } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,20 +24,22 @@ const Register = () => {
 
   const [role, setRole] = useState("admin"); // Default to admin
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
+  const error = localError || reduxError;
+  const isLoading = reduxLoading;
 
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError("");
+    if (localError) setLocalError("");
   };
 
   // Validation
   const validateForm = () => {
     if (!formData.name.trim()) return "Please enter your full name";
-    if (!formData.companyName.trim()) return "Please enter your company name";
+    if (role === "admin" && !formData.companyName.trim()) return "Please enter your company name";
+    if (role === "agent" && !formData.inviteCode.trim()) return "Please enter your invite code";
     if (!/^\S+@\S+\.\S+$/.test(formData.email))
       return "Please enter a valid email address";
     if (formData.password.length < 8)
@@ -46,31 +50,21 @@ const Register = () => {
   // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
 
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
+      setLocalError(validationError);
       return;
     }
 
-    setIsLoading(true);
+    const user = await handleRegisterUser({
+      ...formData,
+      role,
+    });
 
-    try {
-      const user = await handleRegisterUser({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        companyName: formData.companyName,
-        role,
-      });
-
-      if (user) {
-        navigate(`/${role}`);
-      }
-    } catch (err) {
-      setError("Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (user) {
+      navigate(`/${role}`);
     }
   };
 
@@ -94,7 +88,7 @@ const Register = () => {
                 type="button"
                 onClick={() => {
                   setRole(r);
-                  setError("");
+                  setLocalError("");
                 }}
                 className={`relative flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${
                   role === r ? "text-white shadow-sm" : "text-zinc-400 hover:text-zinc-300"
@@ -215,7 +209,7 @@ const Register = () => {
             </motion.div>
           </motion.div>
 
-          {/* Error */}
+          {/* Error Message */}
           <AnimatePresence>
             {error && (
               <motion.div

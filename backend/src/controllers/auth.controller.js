@@ -32,7 +32,8 @@ const sendTokenResponse = async (user, res, message, statusCode = 200) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            companyId: user.companyId
+            companyId: user.companyId,
+            inviteCode: user.inviteCode
         },
     });
 };
@@ -78,11 +79,12 @@ export const registerUserController = async (req, res) => {
              }
              
              // Look up the company by its unique API Key / Invite Code
-             const company = await Company.findOne({ apiKey: inviteCode });
+             const normalizedCode = inviteCode.trim().toLowerCase();
+             const company = await Company.findOne({ apiKey: normalizedCode });
              if (!company) {
                  return res.status(400).json({
                      success: false,
-                     message: "Invalid company invite code",
+                     message: `Invalid invite code: ${inviteCode}. Please check with your administrator.`,
                  });
              }
              finalCompanyId = company._id;
@@ -101,7 +103,12 @@ export const registerUserController = async (req, res) => {
         });
 
         // ✅ auto login after register
-        await sendTokenResponse(user, res, "User registered successfully", 201);
+        const company = finalCompanyId ? await Company.findById(finalCompanyId) : null;
+        
+        await sendTokenResponse({
+            ...user.toObject(),
+            inviteCode: company?.apiKey
+        }, res, "User registered successfully", 201);
 
     } catch (error) {
         res.status(500).json({
@@ -115,7 +122,7 @@ export const registerUserController = async (req, res) => {
 // 🔑 LOGIN
 export const loginUserController = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         // check user
         const user = await User.findOne({ email });
@@ -123,6 +130,14 @@ export const loginUserController = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "Invalid credentials",
+            });
+        }
+
+        // 🛡️ Role Verification
+        if (role && user.role !== role) {
+            return res.status(403).json({
+                success: false,
+                message: `This account is registered as an ${user.role}. Please login through the correct portal.`,
             });
         }
 
