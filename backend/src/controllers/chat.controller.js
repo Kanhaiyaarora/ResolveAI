@@ -1,4 +1,4 @@
-import { generateRAGResponse } from "../services/ai.service.js";
+import { generateRAGResponse, analyzePriority } from "../services/ai.service.js";
 import Customer from "../models/customer.model.js";
 import Ticket from "../models/ticket.model.js";
 import Conversation from "../models/conversation.model.js";
@@ -34,6 +34,9 @@ export const handleBotChatController = async (req, res) => {
                 });
             }
 
+            // AI generates priority based on the user's message
+            const generatedPriority = await analyzePriority(message);
+
             // Create a Conversation for the escalated chat
             const conversation = await Conversation.create({
                 companyId,
@@ -41,7 +44,8 @@ export const handleBotChatController = async (req, res) => {
                 status: "open",
                 isAiActive: false,
                 lastMessage: message,
-                lastMessageAt: new Date()
+                lastMessageAt: new Date(),
+                priority: generatedPriority
             });
 
             // Create an open ticket for human agents to pick up, linked to conversation
@@ -52,7 +56,7 @@ export const handleBotChatController = async (req, res) => {
                 subject: "Escalated AI Chat",
                 description: `AI failed to answer. Original query: "${message}"`,
                 status: "open",
-                priority: "high"
+                priority: generatedPriority
             });
 
             // Save the initial failed message to the conversation history

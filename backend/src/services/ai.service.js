@@ -66,3 +66,39 @@ export const generateRAGResponse = async (tenantId, query) => {
         throw new Error("Failed to generate AI response.");
     }
 };
+
+/**
+ * Analyzes a user's message to determine its priority (low, medium, high).
+ * 
+ * @param {string} message - The customer's message
+ * @returns {string} - "low", "medium", or "high"
+ */
+export const analyzePriority = async (message) => {
+    try {
+        const priorityPrompt = PromptTemplate.fromTemplate(`
+Analyze the following customer support message and determine its urgency.
+Respond with EXACTLY ONE WORD from this list: low, medium, high.
+
+Rules:
+- "low": General inquiries, feedback, or feature requests.
+- "medium": Standard support issues, bugs that have workarounds, account questions.
+- "high": Critical issues, payment failures, service outages, refunds, urgent help.
+
+Message: "{message}"
+Priority:
+`);
+        const chain = priorityPrompt.pipe(model).pipe(new StringOutputParser());
+        let result = await chain.invoke({ message });
+        
+        // Clean the result to ensure it strictly matches the enum
+        result = result.replace(/[^a-zA-Z]/g, "").toLowerCase().trim();
+        
+        if (["low", "medium", "high"].includes(result)) {
+            return result;
+        }
+        return "medium"; // Default fallback
+    } catch (error) {
+        console.error("Error analyzing priority:", error);
+        return "medium"; // Default fallback on error
+    }
+};
