@@ -41,7 +41,7 @@ const sendTokenResponse = async (user, res, message, statusCode = 200) => {
 // 📝 REGISTER
 export const registerUserController = async (req, res) => {
     try {
-        const { name, email, password, role, companyName, companyId } = req.body;
+        const { name, email, password, role, companyName, inviteCode } = req.body;
         // check if user exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -52,7 +52,7 @@ export const registerUserController = async (req, res) => {
         }
 
         // Determine company ID logic based on role
-        let finalCompanyId = companyId;
+        let finalCompanyId = null;
         const userRole = role || "agent";
 
         if (userRole === "admin") {
@@ -69,13 +69,23 @@ export const registerUserController = async (req, res) => {
             });
             finalCompanyId = newCompany._id;
         } else if (userRole === "agent") {
-             // Agent must be associated with an existing company
-             if (!finalCompanyId) {
+             // Agent must be associated with an existing company using an invite code
+             if (!inviteCode) {
                  return res.status(400).json({
                     success: false,
-                    message: "Company ID is required for agent registration",
+                    message: "Company invite code is required for agent registration",
                  });
              }
+             
+             // Look up the company by its unique API Key / Invite Code
+             const company = await Company.findOne({ apiKey: inviteCode });
+             if (!company) {
+                 return res.status(400).json({
+                     success: false,
+                     message: "Invalid company invite code",
+                 });
+             }
+             finalCompanyId = company._id;
         }
 
         // hash password
