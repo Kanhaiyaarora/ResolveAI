@@ -10,7 +10,8 @@ export const useAuth = () => {
     email,
     password,
     role,
-    companyId,
+    companyName,
+    inviteCode,
   }) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
@@ -20,7 +21,8 @@ export const useAuth = () => {
         email,
         password,
         role,
-        companyId,
+        companyName,
+        inviteCode,
       });
       if (data.token) {
         localStorage.setItem("token", data.token);

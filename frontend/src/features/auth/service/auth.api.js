@@ -13,21 +13,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function register({ name, email, password, role, companyId }) {
+export async function register({ name, email, password, role, companyName, inviteCode }) {
   const response = await api.post("/api/auth/register", {
     name,
     email,
     password,
     role,
-    companyId,
+    companyName,
+    inviteCode,
   });
   return response.data;
 }
 
-export async function login({ email, password }) {
+export async function login({ email, password, role }) {
   const response = await api.post("/api/auth/login", {
     email,
     password,
+    role,
   });
   return response.data;
 }
@@ -38,6 +40,6 @@ export async function getMe() {
 }
 
 export async function logout() {
-  const response = await api.get("/api/auth/logout");
+  const response = await api.post("/api/auth/logout");
   return response.data;
 }
