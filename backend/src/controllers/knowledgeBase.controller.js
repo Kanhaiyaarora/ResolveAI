@@ -35,22 +35,24 @@ export const uploadDocumentController = async (req, res) => {
         // Process document into vectors (Extract -> Chunk -> Embed)
         const vectors = await processDocumentToVectors(fileBuffer, file.mimetype, metadata);
 
+        console.log("Total chunks/vectors generated:", vectors.length);
+        if (vectors.length === 0) {
+            throw new Error("Failed to generate any text vectors from the document.");
+        }
+
         // Upsert vectors to Pinecone under the company's namespace
         await upsertVectors(companyId.toString(), vectors);
 
-        // Update MongoDB Knowledge Base record
-        let kb = await KnowledgeBase.findOne({ tenantId: companyId });
-        if (!kb) {
-            kb = new KnowledgeBase({ tenantId: companyId, documents: [] });
-        }
-
-        kb.documents.push({
+        // Create MongoDB Knowledge Base record for this file
+        const newKbDoc = new KnowledgeBase({
+            companyId: companyId,
             title: file.originalname,
-            url: file.path, // In a real app, upload this to S3/Cloudinary and save that URL
-            uploadedBy: req.user._id,
+            content: "File processed and vectorized in Pinecone.", // Storing reference since actual chunks are in Pinecone
+            type: "doc",
+            createdBy: req.user._id,
         });
 
-        await kb.save();
+        await newKbDoc.save();
 
         // Clean up temporary file
         fs.unlinkSync(file.path);
