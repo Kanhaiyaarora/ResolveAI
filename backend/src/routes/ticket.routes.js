@@ -42,9 +42,9 @@ ticketRouter.patch("/:id/assign", authenticateUser,
 );
 
 
-//  UPDATE STATUS (AGENT)
+//  UPDATE STATUS (AGENT, ADMIN)
 ticketRouter.patch("/:id/status", authenticateUser,
-    authorizeRoles("agent"),
+    authorizeRoles("agent","admin"),
     updateTicketStatusController
 );
 
