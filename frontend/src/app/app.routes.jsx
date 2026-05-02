@@ -1,13 +1,17 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
-import Chat from "../features/auth/pages/Chat";
+import DashboardLayout from "../features/dashboard/components/DashboardLayout";
+import AdminDashboard from "../features/dashboard/pages/AdminDashboard";
+import AgentDashboard from "../features/dashboard/pages/AgentDashboard";
+import TicketList from "../features/tickets/pages/TicketList";
+import TicketDetails from "../features/tickets/pages/TicketDetails";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <h1>Home of ResolveAI</h1>
+    element: <Navigate to="/login" replace />
   },
   {
     path: "/login",
@@ -18,33 +22,38 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path: "/chat",
-    element:<Chat/>
-  },
-  {
-    element: <ProtectedRoute allowedRoles={["admin"]} />,
+    element: <ProtectedRoute />, // Base protection
     children: [
       {
-        path: "/admin",
-        element: (
-          <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">Admin Dashboard</h1>
-          </div>
-        )
-      }
-    ]
-  },
-  {
-    element: <ProtectedRoute allowedRoles={["agent"]} />,
-    children: [
-      {
-        path: "/agent",
-        element: (
-          <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-blue-500">Agent Dashboard</h1>
-          </div>
-        )
+        element: <DashboardLayout />,
+        children: [
+          // Admin specific routes
+          {
+            element: <ProtectedRoute allowedRoles={["admin"]} />,
+            children: [
+              { path: "/admin", element: <AdminDashboard /> },
+            ]
+          },
+          // Agent specific routes
+          {
+            element: <ProtectedRoute allowedRoles={["agent"]} />,
+            children: [
+              { path: "/agent", element: <AgentDashboard /> },
+            ]
+          },
+          // Common routes
+          { path: "/tickets", element: <TicketList /> },
+          { path: "/tickets/:id", element: <TicketDetails /> },
+          { 
+            path: "/settings", 
+            element: <div className="text-white p-8">Settings coming soon...</div> 
+          },
+          { 
+            path: "/help", 
+            element: <div className="text-white p-8">Help center coming soon...</div> 
+          },
+        ]
       }
     ]
   }
-])
+]);

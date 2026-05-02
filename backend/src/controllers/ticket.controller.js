@@ -170,3 +170,35 @@ export const updateTicketStatusController = async (req, res) => {
     });
   }
 };
+
+
+
+// 🔍 GET TICKET BY ID
+export const getTicketByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const ticket = await Ticket.findOne({ _id: id, companyId: req.user.companyId })
+      .populate("assignedTo", "name email")
+      .populate("customerId")
+      .populate("createdBy", "name email");
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      ticket,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

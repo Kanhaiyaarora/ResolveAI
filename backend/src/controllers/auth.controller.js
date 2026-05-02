@@ -200,3 +200,23 @@ export const getMeController = async (req, res) => {
         });
     }
 };
+
+// 👥 GET ALL AGENTS (FOR ADMIN)
+export const getAgentsController = async (req, res) => {
+    try {
+        const agents = await User.find({ 
+            companyId: req.user.companyId,
+            role: "agent" 
+        }).select("name email _id");
+
+        res.status(200).json({
+            success: true,
+            agents,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};

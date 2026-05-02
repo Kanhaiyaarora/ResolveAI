@@ -1,0 +1,112 @@
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { getAllTickets, getMyTickets } from "../service/ticket.api";
+import TicketCard from "../components/TicketCard";
+import TicketSkeleton from "../components/TicketSkeleton";
+import { Filter, Search, Plus, Loader2 } from "lucide-react";
+import Button from "../../auth/components/Button";
+
+const TicketList = () => {
+  const { user } = useSelector((state) => state.auth);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState({ status: "", priority: "" });
+
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const data = user.role === "admin" 
+        ? await getAllTickets(filter) 
+        : await getMyTickets();
+      setTickets(data.tickets);
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, [user.role, filter]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">
+            {user.role === "admin" ? "All Tickets" : "My Assigned Tickets"}
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Manage and track support requests across your organization.
+          </p>
+        </div>
+        
+        {user.role === "admin" && (
+          <Button className="flex items-center gap-2">
+            <Plus size={18} />
+            Create Ticket
+          </Button>
+        )}
+      </div>
+
+      {/* Filters Bar */}
+      <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 rounded-xl text-slate-300 text-xs font-bold uppercase tracking-widest border border-slate-700">
+          <Filter size={14} />
+          Filters
+        </div>
+
+        <select 
+          value={filter.status}
+          onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+          className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+        >
+          <option value="">All Statuses</option>
+          <option value="open">Open</option>
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+        </select>
+
+        <select 
+          value={filter.priority}
+          onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
+          className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+        >
+          <option value="">All Priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <div className="ml-auto text-slate-500 text-sm">
+          Showing {tickets.length} tickets
+        </div>
+      </div>
+
+      {/* Tickets Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <TicketSkeleton key={i} />
+          ))}
+        </div>
+      ) : tickets.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {tickets.map((ticket) => (
+            <TicketCard key={ticket._id} ticket={ticket} />
+          ))}
+        </div>
+      ) : (
+        <div className="h-64 bg-slate-900/20 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center text-slate-500 gap-2">
+          <Ticket size={48} className="opacity-20 mb-2" />
+          <p className="font-semibold text-lg">No tickets found</p>
+          <p className="text-sm">Try adjusting your filters or check back later.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TicketList;

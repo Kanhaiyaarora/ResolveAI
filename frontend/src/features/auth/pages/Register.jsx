@@ -12,7 +12,13 @@ import { useAuth } from "../hook/useAuth";
 const Register = () => {
   const navigate = useNavigate();
   const { handleRegisterUser } = useAuth();
-  const { error: reduxError, loading: reduxLoading } = useSelector((state) => state.auth);
+  const { error: reduxError, loading: reduxLoading, isAuthenticated, user } = useSelector((state) => state.auth);
+
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(`/${user.role}`);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const [formData, setFormData] = useState({
     name: "",
