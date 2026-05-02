@@ -43,11 +43,11 @@ body {
 }
 
 .glow-primary {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .glow-text {
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
 
 .gradient-text {

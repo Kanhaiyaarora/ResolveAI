@@ -1,129 +1,99 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Zap, Activity } from "lucide-react";
+import { ShieldCheck, Activity, Users } from "lucide-react";
 
 const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <div className="h-screen w-full flex flex-col md:flex-row bg-slate-950 overflow-hidden selection:bg-indigo-500/30 font-sans selection:text-white relative">
+    <div className="min-h-screen lg:h-screen w-full flex flex-col lg:flex-row bg-black font-sans lg:overflow-hidden selection:bg-emerald-500/30 selection:text-white">
       
-      {/* GLOBAL BACKGROUND ELEMENTS (Z-0) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-          <motion.div
-            animate={{ x: [0, 30, 0], y: [0, 40, 0], opacity: [0.1, 0.2, 0.1] }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 -left-20 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px]"
+      {/* LEFT SIDE: ILLUSTRATION / BRANDING (Visible on lg+) */}
+      <div className="hidden lg:flex flex-col justify-between w-1/2 h-full relative p-12 overflow-hidden">
+        {/* Image and Dark Overlay */}
+        <div className="absolute inset-0 z-0 bg-black">
+          <img 
+            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" 
+            alt="ResolveAI High-Tech Infrastructure" 
+            className="w-full h-full object-cover opacity-50"
           />
-      </div>
-
-      {/* LEFT SIDE: BRANDING (Z-10) */}
-      <div className="hidden md:flex md:w-1/2 h-full relative flex-col justify-between p-10 lg:p-16 border-r border-white/5 z-10">
-        {/* Branding */}
-        <div className="relative">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3 mb-12"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] border border-white/10">
-              <ShieldCheck className="text-white w-6 h-6" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white italic">ResolveAI</span>
-          </motion.div>
-
-          <div className="space-y-6">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight"
-            >
-              Master your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-500">
-                infrastructure.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-base text-slate-400 max-w-sm leading-relaxed"
-            >
-              Deploy with confidence. Our AI predicts anomalies before they impact your users.
-            </motion.p>
-          </div>
+          {/* Gradient that fades to solid black on the right edge */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black" />
         </div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="grid grid-cols-2 gap-8"
-        >
-          <div>
-            <div className="flex items-center space-x-3 mb-1">
-              <Zap className="text-indigo-400 w-4 h-4" />
-              <p className="text-xl font-mono font-bold text-white">99.99%</p>
+        {/* Branding Top */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+            <ShieldCheck className="text-white w-6 h-6" />
+          </div>
+          <span className="text-xl font-bold text-white tracking-tight">ResolveAI</span>
+        </div>
+
+        {/* Center content */}
+        <div className="relative z-10 my-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-4"
+          >
+            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] tracking-tight">
+              Smart Ticket <br />
+              <span className="text-emerald-400">Management System.</span>
+            </h1>
+            <p className="text-zinc-400 text-base max-w-md leading-relaxed">
+              Empower your support team with AI-driven insights. Resolve issues faster and keep your customers happy.
+            </p>
+
+            <div className="flex items-center gap-6 pt-4">
+               <div className="flex items-center gap-2">
+                 <Activity className="text-emerald-500 w-5 h-5" />
+                 <span className="text-sm text-zinc-300 font-medium">Real-time Analytics</span>
+               </div>
+               <div className="flex items-center gap-2">
+                 <Users className="text-amber-500 w-5 h-5" />
+                 <span className="text-sm text-zinc-300 font-medium">Team Collaboration</span>
+               </div>
             </div>
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">Uptime SLA</p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: AUTH FORM */}
+      <div className="w-full lg:w-1/2 min-h-screen lg:h-full flex flex-col items-center justify-start lg:justify-center p-6 py-12 lg:py-6 relative bg-black lg:overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="w-full max-w-md bg-white/[0.02] border border-white/[0.05] p-6 sm:p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden group/card"
+        >
+          {/* Sparkle Border Effect (Animated Beam) */}
+          <div className="absolute inset-0 p-[1px] rounded-3xl overflow-hidden pointer-events-none">
+            <div className="absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,transparent_25%,#10b981_50%,transparent_75%,transparent_100%)] animate-[spin_4s_linear_infinite] opacity-10 group-hover/card:opacity-30 transition-opacity duration-500" />
           </div>
 
-          <div>
-            <div className="flex items-center space-x-3 mb-1">
-              <Activity className="text-purple-400 w-4 h-4" />
-              <p className="text-xl font-mono font-bold text-white">2.4ms</p>
+          {/* Subtle top glow on the card */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          {/* Header */}
+          <div className="mb-6 space-y-1 text-center relative z-10">
+            {/* Logo for mobile/tablet only */}
+            <div className="lg:hidden flex flex-col items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                <ShieldCheck className="text-white w-7 h-7" />
+              </div>
+              <span className="text-2xl font-bold text-white tracking-tight">ResolveAI</span>
             </div>
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">Avg Latency</p>
+
+            <h2 className="text-2xl font-extrabold text-white tracking-tight">{title}</h2>
+            {subtitle && <p className="text-xs text-zinc-400">{subtitle}</p>}
+          </div>
+
+          {/* Form Content */}
+          <div className="flex flex-col gap-4 w-full">
+            {children}
           </div>
         </motion.div>
       </div>
 
-      {/* RIGHT SIDE: FORM CONTENT (Z-10) */}
-      <div className="flex-1 h-full relative flex flex-col z-10 bg-slate-950 md:bg-transparent">
-        
-        {/* Mobile Header (Visible only on small screens) */}
-        <div className="md:hidden flex items-center justify-between p-6 border-b border-white/5 bg-slate-950/80 backdrop-blur-lg">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <ShieldCheck className="text-white w-4 h-4" />
-            </div>
-            <span className="text-lg font-bold text-white italic">ResolveAI</span>
-          </div>
-        </div>
-
-        {/* Scrollable Form Container */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-center p-6 lg:p-10 scrollbar-hide">
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-[420px] relative py-8 md:py-4"
-          >
-            {/* Glow Background */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-[3rem] blur-3xl opacity-50 pointer-events-none" />
-
-            {/* The Glass Card */}
-            <div className="relative bg-white/[0.03] backdrop-blur-3xl border border-white/10 shadow-2xl p-8 lg:p-10 rounded-[2.5rem] transition-all duration-500">
-              
-              {/* Header */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">{title}</h2>
-                <p className="text-slate-400 text-xs leading-relaxed">{subtitle}</p>
-              </div>
-
-              {/* Form Content */}
-              <div className="space-y-4">
-                {children}
-              </div>
-
-            </div>
-          </motion.div>
-
-        </div>
-      </div>
     </div>
   );
 };

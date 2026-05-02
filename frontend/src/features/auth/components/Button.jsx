@@ -15,15 +15,15 @@ const Button = ({
   const isDisabled = isLoading || disabled;
 
   const baseStyles =
-    "relative flex items-center justify-center w-full px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ring-offset-slate-900";
+    "relative flex items-center justify-center w-full h-12 px-6 rounded-xl font-semibold text-base transition-all duration-200 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ring-offset-slate-900";
 
   const variants = {
     primary:
-      "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-indigo-500/30",
+      "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-shadow",
     outline:
-      "bg-white/5 border border-white/10 hover:bg-white/10 text-white backdrop-blur-md",
+      "bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white",
     ghost:
-      "bg-transparent text-slate-400 hover:text-white hover:bg-white/5",
+      "bg-transparent text-slate-400 hover:text-white hover:bg-slate-800",
   };
 
   return (
@@ -32,8 +32,8 @@ const Button = ({
       onClick={onClick}
       disabled={isDisabled}
       aria-busy={isLoading}
-      whileHover={!isDisabled ? { scale: 1.02, y: -1 } : {}}
-      whileTap={!isDisabled ? { scale: 0.96 } : {}}
+      whileHover={!isDisabled ? { scale: 1.02 } : {}}
+      whileTap={!isDisabled ? { scale: 0.98 } : {}}
       className={`${baseStyles} ${variants[variant]} ${
         isDisabled ? "opacity-60 cursor-not-allowed" : ""
       } ${className}`}

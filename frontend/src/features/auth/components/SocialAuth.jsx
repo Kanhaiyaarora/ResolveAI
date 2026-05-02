@@ -2,10 +2,10 @@ import GoogleAuthButton from "./GoogleAuthButton";
 
 const SocialAuth = () => {
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full flex flex-col gap-4">
 
       {/* Buttons */}
-      <div className="grid gap-3">
+      <div className="w-full">
         <GoogleAuthButton 
           theme="dark" 
           text="Sign in with Google" 
@@ -15,11 +15,11 @@ const SocialAuth = () => {
 
       {/* Divider */}
       <div className="relative flex items-center py-1">
-        <div className="flex-grow border-t border-white/10" />
-        <span className="mx-4 text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold">
+        <div className="flex-grow border-t border-slate-700" />
+        <span className="mx-4 text-xs text-slate-500 uppercase tracking-widest font-semibold">
           Or continue with
         </span>
-        <div className="flex-grow border-t border-white/10" />
+        <div className="flex-grow border-t border-slate-700" />
       </div>
     </div>
   );
