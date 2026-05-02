@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Company from "../models/company.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { CONFIG } from "../config/config.js";
@@ -32,8 +33,7 @@ const sendTokenResponse = async (user, res, message, statusCode = 200) => {
 // 📝 REGISTER
 export const registerUserController = async (req, res) => {
     try {
-        const { name, email, password, role, companyId } = req.body;
-
+        const { name, email, password, role, companyName, companyId } = req.body;
         // check if user exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -41,6 +41,33 @@ export const registerUserController = async (req, res) => {
                 success: false,
                 message: "User already exists",
             });
+        }
+
+        // Determine company ID logic based on role
+        let finalCompanyId = companyId;
+        const userRole = role || "agent";
+
+        if (userRole === "admin") {
+            // Auto-create a company (tenant) for the admin
+            if (!companyName) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Company name is required for admin registration",
+                });
+            }
+            const newCompany = await Company.create({
+                name: companyName,
+                email: email, // Linking admin's email to company
+            });
+            finalCompanyId = newCompany._id;
+        } else if (userRole === "agent") {
+             // Agent must be associated with an existing company
+             if (!finalCompanyId) {
+                 return res.status(400).json({
+                    success: false,
+                    message: "Company ID is required for agent registration",
+                 });
+             }
         }
 
         // hash password
@@ -51,8 +78,8 @@ export const registerUserController = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || "agent",
-            companyId,
+            role: userRole,
+            companyId: finalCompanyId,
         });
 
         // ✅ auto login after register

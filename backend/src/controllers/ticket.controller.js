@@ -106,17 +106,17 @@ export const assignTicketController = async (req, res) => {
     const { id } = req.params;
     const { agentIds } = req.body; // array of agent IDs
 
-    const ticket = await Ticket.findById(id);
+    const ticket = await Ticket.findOne({ _id: id, companyId: req.user.companyId });
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        message: "Ticket not found",
+        message: "Ticket not found or unauthorized",
       });
     }
 
     ticket.assignedTo = agentIds;
-    ticket.status = "in-progress";
+    ticket.status = "pending";
 
     await ticket.save();
 
@@ -143,12 +143,12 @@ export const updateTicketStatusController = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const ticket = await Ticket.findById(id);
+    const ticket = await Ticket.findOne({ _id: id, companyId: req.user.companyId });
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        message: "Ticket not found",
+        message: "Ticket not found or unauthorized",
       });
     }
 

@@ -34,6 +34,4 @@ const companySchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-companySchema.index({ apiKey: 1 });
-
 export default mongoose.model("Company", companySchema);

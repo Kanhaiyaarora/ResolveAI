@@ -7,6 +7,8 @@ import { CONFIG } from "./config/config.js";
 import morgan from "morgan";
 import authRouter from "./routes/auth.routes.js";
 import ticketRouter from "./routes/ticket.routes.js";
+import kbRouter from "./routes/knowledgeBase.routes.js";
+import chatRouter from "./routes/chat.routes.js";
 
 
 const app = express();
@@ -22,6 +24,8 @@ app.use(morgan("dev"));
 // api endpoints
 app.use("/api/auth", authRouter);
 app.use("/api/tickets", ticketRouter);
+app.use("/api/knowledge-base", kbRouter);
+app.use("/api/chat", chatRouter);
 
 passport.use(
   new GoogleStrategy(
