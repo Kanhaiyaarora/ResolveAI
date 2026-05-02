@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
+import Chat from "../features/auth/pages/Chat";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/chat",
+    element:<Chat/>
   },
   {
     element: <ProtectedRoute allowedRoles={["admin"]} />,
@@ -42,4 +47,4 @@ export const router = createBrowserRouter([
       }
     ]
   }
-])
+])
