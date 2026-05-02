@@ -194,10 +194,10 @@ function MessageBubble({ msg, isLast, onRegenerate }) {
 
 // ─── Welcome Screen ───────────────────────────────────────────────────────────
 const SUGGESTIONS = [
-  { icon: "✦", label: "Explain", text: "Explain quantum computing simply" },
+  { icon: "✦", label: "Explain", text: "How can I use this app?" },
   { icon: "✍", label: "Write", text: "Write a short story about time travel" },
-  { icon: "⌥", label: "Debug", text: "Help me debug my React component" },
-  { icon: "✈", label: "Plan", text: "Plan a 7-day trip to Japan" },
+  { icon: "⌥", label: "Debug", text: "Where Can I search my Products?" },
+  { icon: "✈", label: "Plan", text: "How to connect with Customers Care ?" },
 ];
 
 function WelcomeScreen({ onSuggestion }) {
@@ -212,7 +212,8 @@ function WelcomeScreen({ onSuggestion }) {
       </div>
       <h2 className="text-2xl font-bold text-zinc-800 mb-2 tracking-tight">How can I help you?</h2>
       <p className="text-zinc-400 text-sm mb-10 max-w-xs leading-relaxed">
-        Ask me anything. Connect your API to enable real AI responses.
+        {/* Ask me anything. Connect your API to enable real AI responses. */}
+        Ask me anything.
       </p>
       <div className="grid grid-cols-2 gap-3 max-w-md w-full">
         {SUGGESTIONS.map((s) => (
@@ -552,7 +553,8 @@ export default function Chat() {
                 </div>
               </div>
               <p className="text-center text-[11px] text-zinc-300 mt-2">
-                AI can make mistakes. Connect your API key to enable real responses.
+                {/* AI can make mistakes. Connect your API key to enable real responses. */}
+                
               </p>
             </div>
           </div>
