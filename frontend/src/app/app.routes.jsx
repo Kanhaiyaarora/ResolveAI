@@ -13,6 +13,7 @@ import CreateTicket from "../features/tickets/pages/CreateTicket";
 import ChatPage from "../features/chat/pages/ChatPage";
 import NotFoundPage from "../features/notFound/NotFoundPage";
 import Settings from "../features/settings/pages/Settings";
+import MyAgents from "../features/agents/pages/MyAgents";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
               { path: "/tickets/create", element: <CreateTicket /> },
               { path: "/admin/knowledge-base", element: <KnowledgeBaseAdmin /> },
               { path: "/admin/widget", element: <WidgetSettings /> },
+              { path: "/admin/agents", element: <MyAgents /> },
             ]
           },
           // Agent specific routes

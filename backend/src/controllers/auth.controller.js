@@ -150,8 +150,14 @@ export const loginUserController = async (req, res) => {
             });
         }
 
+        // ✅ fetch company to get API key (invite code)
+        const company = user.companyId ? await Company.findById(user.companyId) : null;
+
         // ✅ send token
-        await sendTokenResponse(user, res, "Login successful");
+        await sendTokenResponse({
+            ...user.toObject(),
+            inviteCode: company?.apiKey
+        }, res, "Login successful");
 
     } catch (error) {
         res.status(500).json({
@@ -189,9 +195,18 @@ export const logoutUserController = async (req, res) => {
 // 👤 GET CURRENT USER
 export const getMeController = async (req, res) => {
     try {
+        let company = null;
+        if (req.user?.companyId) {
+            company = await Company.findById(req.user.companyId);
+        }
+
         res.status(200).json({
             success: true,
-            user: req.user,
+            user: {
+                ...req.user.toObject(),
+                inviteCode: company?.apiKey
+            },
+            company,
         });
     } catch (error) {
         res.status(500).json({

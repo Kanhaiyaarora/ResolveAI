@@ -8,7 +8,8 @@ import {
   LogOut,
   X,
   BookOpen,
-  Code2
+  Code2,
+  Users
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { motion } from "framer-motion";
@@ -23,6 +24,7 @@ const Sidebar = ({ role, onLogout, isOpen, onClose }) => {
         { id: "assign", label: "Assign Tickets", icon: UserPlus, path: "/tickets?view=unassigned" },
         { id: "knowledge-base", label: "Knowledge Base", icon: BookOpen, path: "/admin/knowledge-base" },
         { id: "widget", label: "Widget Settings", icon: Code2, path: "/admin/widget" },
+        { id: "agents", label: "My Agents", icon: Users, path: "/admin/agents" },
         { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
       ]
     : [
@@ -52,7 +54,8 @@ const Sidebar = ({ role, onLogout, isOpen, onClose }) => {
           const isActive = location.pathname === item.path || 
             (item.id === 'tickets' && location.pathname.startsWith('/tickets') && !location.pathname.startsWith('/admin/')) ||
             (item.id === 'knowledge-base' && location.pathname.startsWith('/admin/knowledge-base')) ||
-            (item.id === 'widget' && location.pathname.startsWith('/admin/widget'));
+            (item.id === 'widget' && location.pathname.startsWith('/admin/widget')) ||
+            (item.id === 'agents' && location.pathname.startsWith('/admin/agents'));
           return (
             <Link
               key={item.id}

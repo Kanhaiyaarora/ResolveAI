@@ -51,7 +51,6 @@ const Navbar = ({ onMenuClick }) => {
                <UserIcon size={18} />
              )}
           </div>
-          <ChevronDown size={14} className="text-slate-500 hidden sm:block" />
         </div>
       </div>
     </header>
