@@ -207,28 +207,54 @@ export const getTicketByIdController = async (req, res) => {
 // 📊 GET TICKET STATS
 export const getTicketStatsController = async (req, res) => {
   try {
-    const totalTickets = await Ticket.countDocuments({ companyId: req.user.companyId });
-    const openTickets = await Ticket.countDocuments({ companyId: req.user.companyId, status: "open" });
-    const resolvedTickets = await Ticket.countDocuments({ companyId: req.user.companyId, status: "resolved" });
-    
-    // For agents, we might want their specific stats too
-    const myTotalTickets = await Ticket.countDocuments({ assignedTo: req.user._id });
-    const myResolvedTickets = await Ticket.countDocuments({ assignedTo: req.user._id, status: "resolved" });
+    if (!req.user || !req.user.companyId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized or missing company association",
+      });
+    }
+
+    const companyId = req.user.companyId;
+
+    const [
+      total,
+      open,
+      pending,
+      resolved,
+      closed,
+      activeAgentIds,
+      myTotal,
+      myResolved
+    ] = await Promise.all([
+      Ticket.countDocuments({ companyId }),
+      Ticket.countDocuments({ companyId, status: "open" }),
+      Ticket.countDocuments({ companyId, status: "pending" }),
+      Ticket.countDocuments({ companyId, status: "resolved" }),
+      Ticket.countDocuments({ companyId, status: "closed" }),
+      Ticket.distinct("assignedTo", { companyId, assignedTo: { $exists: true, $ne: [] } }),
+      Ticket.countDocuments({ assignedTo: req.user._id }),
+      Ticket.countDocuments({ assignedTo: req.user._id, status: "resolved" })
+    ]);
 
     res.status(200).json({
       success: true,
       stats: {
-        total: totalTickets,
-        open: openTickets,
-        resolved: resolvedTickets,
-        myTotal: myTotalTickets,
-        myResolved: myResolvedTickets
+        total,
+        open,
+        inProgress: pending, // Mapping 'pending' to 'inProgress' for the UI
+        resolved,
+        closed,
+        activeAgents: activeAgentIds.length,
+        myTotal,
+        myResolved
       }
     });
   } catch (error) {
+    console.error("Error in getTicketStatsController:", error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Internal Server Error while fetching stats",
+      error: error.message
     });
   }
 };
