@@ -34,7 +34,6 @@ export const authenticateUser = async (req, res, next) => {
                 message: "Invalid token payload",
             });
         }
-
         
         //  4. Fetch user
         const user = await UserModel.findById(decoded.id).select("-password");

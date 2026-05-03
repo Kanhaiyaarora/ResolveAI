@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { RouterProvider } from 'react-router'
 import { router } from './app.routes'
 import { useAuth } from '../features/auth/hook/useAuth'
@@ -33,7 +34,10 @@ const App = () => {
   }
 
   return (
-    <RouterProvider router={router}></RouterProvider>
+    <>
+      <Toaster position="top-right" />
+      <RouterProvider router={router}></RouterProvider>
+    </>
   )
 }
 

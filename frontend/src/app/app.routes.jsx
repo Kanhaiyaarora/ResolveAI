@@ -12,6 +12,7 @@ import WidgetSettings from "../features/widget/pages/WidgetSettings";
 import CreateTicket from "../features/tickets/pages/CreateTicket";
 import ChatPage from "../features/chat/pages/ChatPage";
 import NotFoundPage from "../features/notFound/NotFoundPage";
+import Settings from "../features/settings/pages/Settings";
 
 export const router = createBrowserRouter([
   {
@@ -55,7 +56,7 @@ export const router = createBrowserRouter([
           { path: "/chat/:ticketId", element: <ChatPage /> },
           { 
             path: "/settings", 
-            element: <div className="text-white p-8">Settings coming soon...</div> 
+            element: <Settings /> 
           },
           { 
             path: "/help", 
