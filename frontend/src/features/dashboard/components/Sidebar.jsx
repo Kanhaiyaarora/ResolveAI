@@ -7,7 +7,8 @@ import {
   HelpCircle, 
   LogOut,
   X,
-  BookOpen
+  BookOpen,
+  Code2
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { motion } from "framer-motion";
@@ -21,6 +22,7 @@ const Sidebar = ({ role, onLogout, isOpen, onClose }) => {
         { id: "tickets", label: "All Tickets", icon: Ticket, path: "/tickets" },
         { id: "assign", label: "Assign Tickets", icon: UserPlus, path: "/tickets?view=unassigned" },
         { id: "knowledge-base", label: "Knowledge Base", icon: BookOpen, path: "/admin/knowledge-base" },
+        { id: "widget", label: "Widget Settings", icon: Code2, path: "/admin/widget" },
         { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
       ]
     : [
@@ -48,8 +50,9 @@ const Sidebar = ({ role, onLogout, isOpen, onClose }) => {
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto scrollbar-hide">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || 
-            (item.id === 'tickets' && location.pathname.startsWith('/tickets') && !location.pathname.startsWith('/admin/knowledge-base')) ||
-            (item.id === 'knowledge-base' && location.pathname.startsWith('/admin/knowledge-base'));
+            (item.id === 'tickets' && location.pathname.startsWith('/tickets') && !location.pathname.startsWith('/admin/')) ||
+            (item.id === 'knowledge-base' && location.pathname.startsWith('/admin/knowledge-base')) ||
+            (item.id === 'widget' && location.pathname.startsWith('/admin/widget'));
           return (
             <Link
               key={item.id}

@@ -8,6 +8,7 @@ import AgentDashboard from "../features/dashboard/pages/AgentDashboard";
 import TicketList from "../features/tickets/pages/TicketList";
 import TicketDetails from "../features/tickets/pages/TicketDetails";
 import KnowledgeBaseAdmin from "../features/knowledgeBase/pages/KnowledgeBaseAdmin";
+import WidgetSettings from "../features/widget/pages/WidgetSettings";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/admin", element: <AdminDashboard /> },
               { path: "/admin/knowledge-base", element: <KnowledgeBaseAdmin /> },
+              { path: "/admin/widget", element: <WidgetSettings /> },
             ]
           },
           // Agent specific routes

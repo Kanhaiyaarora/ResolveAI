@@ -25,8 +25,11 @@ const companySchema = new mongoose.Schema(
     },
 
     widgetSettings: {
-      color: { type: String, default: "#000000" },
+      primaryColor: { type: String, default: "#10b981" },
       position: { type: String, enum: ["left", "right"], default: "right" },
+      welcomeMessage: { type: String, default: "Hi there! How can I help you today?" },
+      botName: { type: String, default: "Support Bot" },
+      logoUrl: { type: String, default: "" },
     },
 
     isActive: { type: Boolean, default: true },

@@ -5,13 +5,22 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { CONFIG } from "./config/config.js";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRouter from "./routes/auth.routes.js";
 import ticketRouter from "./routes/ticket.routes.js";
 import kbRouter from "./routes/knowledgeBase.routes.js";
 import chatRouter from "./routes/chat.routes.js";
+import companyRouter from "./routes/company.routes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const app = express();
+
+// Serve widget.js and widget-frame.html as static files
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 // middlewares
 app.use(cors({
@@ -30,6 +39,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/tickets", ticketRouter);
 app.use("/api/knowledge-base", kbRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/company", companyRouter);
 
 passport.use(
   new GoogleStrategy(
