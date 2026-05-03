@@ -6,7 +6,7 @@ import TicketSkeleton from "../components/TicketSkeleton";
 import { Filter, Search, Plus, Loader2, Ticket } from "lucide-react";
 import Button from "../../auth/components/Button";
 
-import { useLocation } from "react-router";
+import { useLocation, Link } from "react-router";
 
 const TicketList = () => {
   const { user } = useSelector((state) => state.auth);
@@ -56,10 +56,12 @@ const TicketList = () => {
         </div>
         
         {user.role === "admin" && (
-          <Button className="flex items-center gap-2">
-            <Plus size={18} />
-            Create Ticket
-          </Button>
+          <Link to="/tickets/create">
+            <Button className="flex items-center gap-2">
+              <Plus size={18} />
+              Create Ticket
+            </Button>
+          </Link>
         )}
       </div>
 

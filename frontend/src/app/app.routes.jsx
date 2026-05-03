@@ -9,6 +9,7 @@ import TicketList from "../features/tickets/pages/TicketList";
 import TicketDetails from "../features/tickets/pages/TicketDetails";
 import KnowledgeBaseAdmin from "../features/knowledgeBase/pages/KnowledgeBaseAdmin";
 import WidgetSettings from "../features/widget/pages/WidgetSettings";
+import CreateTicket from "../features/tickets/pages/CreateTicket";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
             element: <ProtectedRoute allowedRoles={["admin"]} />,
             children: [
               { path: "/admin", element: <AdminDashboard /> },
+              { path: "/tickets/create", element: <CreateTicket /> },
               { path: "/admin/knowledge-base", element: <KnowledgeBaseAdmin /> },
               { path: "/admin/widget", element: <WidgetSettings /> },
             ]

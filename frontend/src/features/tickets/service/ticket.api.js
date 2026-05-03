@@ -47,3 +47,8 @@ export async function getTicketStats() {
   const response = await api.get("/api/tickets/stats");
   return response.data;
 }
+
+export async function createTicket(ticketData) {
+  const response = await api.post("/api/tickets", ticketData);
+  return response.data;
+}
