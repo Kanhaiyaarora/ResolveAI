@@ -5,29 +5,36 @@ import TicketCard from "../components/TicketCard";
 import TicketSkeleton from "../components/TicketSkeleton";
 import { Filter, Search, Plus, Loader2, Ticket } from "lucide-react";
 import Button from "../../auth/components/Button";
-
 import { useLocation, Link } from "react-router";
-
 import { useTickets } from "../hooks/useTickets";
+
 
 const TicketList = () => {
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const view = queryParams.get("view");
-
-  const { tickets, loading, fetchTickets } = useTickets(user.role);
-  const [filter, setFilter] = useState({ status: "", priority: "" });
+  const { tickets, loading, fetchTickets } = useTickets(user?.role); const [filter, setFilter] = useState({ status: "", priority: "" });
 
   useEffect(() => {
-    // If view=unassigned, we might need special handling or just filter client side as before
-    fetchTickets(filter);
-  }, [user.role, filter, fetchTickets]);
+    if (!user?.role) return;
+
+    if (user.role === "admin") {
+      fetchTickets(filter); // admin supports filters
+    } else {
+      fetchTickets(); // agent → no filters
+    }
+  }, [user?.role, filter]);
 
   // Handle client-side unassigned filter if view is set
-  const displayTickets = view === "unassigned" 
+const displayTickets =
+  view === "unassigned"
     ? tickets.filter(t => !t.assignedTo || t.assignedTo.length === 0)
-    : tickets;
+    : tickets.filter(ticket => {
+        if (filter.status && ticket.status !== filter.status) return false;
+        if (filter.priority && ticket.priority !== filter.priority) return false;
+        return true;
+      });
 
   return (
     <div className="space-y-6">
@@ -40,7 +47,7 @@ const TicketList = () => {
             Manage and track support requests across your organization.
           </p>
         </div>
-        
+
         {user.role === "admin" && (
           <Link to="/tickets/create">
             <Button className="flex items-center gap-2">
@@ -58,7 +65,7 @@ const TicketList = () => {
           Filters
         </div>
 
-        <select 
+        <select
           value={filter.status}
           onChange={(e) => setFilter({ ...filter, status: e.target.value })}
           className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
@@ -70,7 +77,7 @@ const TicketList = () => {
           <option value="closed">Closed</option>
         </select>
 
-        <select 
+        <select
           value={filter.priority}
           onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
           className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
