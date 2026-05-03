@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllTickets, getAgents, getTicketStats } from "../../tickets/service/ticket.api";
+import { getAgents } from "../../tickets/service/ticket.api";
 import { 
   Users, 
   Ticket, 
@@ -10,43 +10,35 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { useSelector } from "react-redux";
+import { useTickets } from "../../tickets/hooks/useTickets";
+
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    total: 0,
-    open: 0,
-    resolved: 0,
-    agents: 0
-  });
-  const [loading, setLoading] = useState(true);
+  const { user } = useSelector((state) => state.auth);
+  const { stats, agents, loading, fetchStats, fetchAgents } = useTickets(user?.role);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const loadData = async () => {
       try {
-        const [statsData, agentData] = await Promise.all([
-          getTicketStats(),
-          getAgents()
+        await Promise.all([
+          fetchStats(),
+          fetchAgents()
         ]);
-        
-        setStats({
-          total: statsData.stats.total,
-          open: statsData.stats.open,
-          resolved: statsData.stats.resolved,
-          agents: agentData.agents.length
-        });
       } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error loading dashboard data:", error);
       }
     };
-    fetchStats();
-  }, []);
+
+    loadData();
+    const interval = setInterval(loadData, 10000); 
+    return () => clearInterval(interval);
+  }, [fetchStats, fetchAgents]);
 
   const cards = [
-    { label: "Total Tickets", value: stats.total, icon: Ticket, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Open Issues", value: stats.open, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Resolved", value: stats.resolved, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    { label: "Active Agents", value: stats.agents, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { label: "Total Tickets", value: stats?.total || 0, icon: Ticket, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Open Issues", value: stats?.open || 0, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { label: "Resolved", value: stats?.resolved || 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "Active Agents", value: agents.length, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
   ];
 
   return (

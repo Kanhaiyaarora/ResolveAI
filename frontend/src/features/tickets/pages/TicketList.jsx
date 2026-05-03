@@ -8,40 +8,26 @@ import Button from "../../auth/components/Button";
 
 import { useLocation, Link } from "react-router";
 
+import { useTickets } from "../hooks/useTickets";
+
 const TicketList = () => {
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const view = queryParams.get("view");
 
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { tickets, loading, fetchTickets } = useTickets(user.role);
   const [filter, setFilter] = useState({ status: "", priority: "" });
 
-  const fetchTickets = async () => {
-    setLoading(true);
-    try {
-      let data;
-      if (user.role === "admin") {
-        data = await getAllTickets(filter);
-        // If view=unassigned, client-side filter for now (or update backend)
-        if (view === "unassigned") {
-          data.tickets = data.tickets.filter(t => !t.assignedTo || t.assignedTo.length === 0);
-        }
-      } else {
-        data = await getMyTickets();
-      }
-      setTickets(data.tickets);
-    } catch (error) {
-      console.error("Failed to fetch tickets:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTickets();
-  }, [user.role, filter, view]);
+    // If view=unassigned, we might need special handling or just filter client side as before
+    fetchTickets(filter);
+  }, [user.role, filter, fetchTickets]);
+
+  // Handle client-side unassigned filter if view is set
+  const displayTickets = view === "unassigned" 
+    ? tickets.filter(t => !t.assignedTo || t.assignedTo.length === 0)
+    : tickets;
 
   return (
     <div className="space-y-6">
@@ -96,7 +82,7 @@ const TicketList = () => {
         </select>
 
         <div className="ml-auto text-slate-500 text-sm">
-          Showing {tickets.length} tickets
+          Showing {displayTickets.length} tickets
         </div>
       </div>
 
@@ -107,9 +93,9 @@ const TicketList = () => {
             <TicketSkeleton key={i} />
           ))}
         </div>
-      ) : tickets.length > 0 ? (
+      ) : displayTickets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {tickets.map((ticket) => (
+          {displayTickets.map((ticket) => (
             <TicketCard key={ticket._id} ticket={ticket} />
           ))}
         </div>

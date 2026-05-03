@@ -34,7 +34,10 @@ const AgentDashboard = () => {
         setLoading(false);
       }
     };
+
     fetchStats();
+    const interval = setInterval(fetchStats, 10000); // Sync every 10 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'pending');

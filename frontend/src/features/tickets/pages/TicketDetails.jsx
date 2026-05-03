@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getTicketById, assignTicket, updateTicketStatus, getAgents } from "../service/ticket.api";
+import { getTicketById, getAgents } from "../service/ticket.api";
+import { useTickets } from "../hooks/useTickets";
 import { useSelector } from "react-redux";
 import StatusBadge from "../components/StatusBadge";
 import { 
@@ -21,34 +22,41 @@ const TicketDetails = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   
+  const { updateStatus, assignAgent } = useTickets(user.role);
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [agents, setAgents] = useState([]);
   const [updating, setUpdating] = useState(false);
 
+  const fetchTicketData = useCallback(async () => {
+    try {
+      const ticketData = await getTicketById(id);
+      setTicket(ticketData.ticket);
+    } catch (error) {
+      console.error("Error fetching ticket:", error);
+    }
+  }, [id]);
+
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const ticketData = await getTicketById(id);
-        setTicket(ticketData.ticket);
-        
+        await fetchTicketData();
         if (user.role === "admin") {
           const agentsData = await getAgents();
           setAgents(agentsData.agents);
         }
-      } catch (error) {
-        console.error("Error fetching ticket details:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id, user.role]);
+  }, [id, user.role, fetchTicketData]);
 
   const handleStatusChange = async (newStatus) => {
     setUpdating(true);
     try {
-      await updateTicketStatus(id, newStatus);
+      await updateStatus(id, newStatus);
       setTicket({ ...ticket, status: newStatus });
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -60,9 +68,8 @@ const TicketDetails = () => {
   const handleAssign = async (agentId) => {
     setUpdating(true);
     try {
-      await assignTicket(id, [agentId]);
-      const updatedTicket = await getTicketById(id);
-      setTicket(updatedTicket.ticket);
+      await assignAgent(id, [agentId]);
+      await fetchTicketData();
     } catch (error) {
       console.error("Failed to assign agent:", error);
     } finally {
@@ -231,7 +238,7 @@ const TicketDetails = () => {
                       : 'bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-white'
                   } disabled:opacity-50`}
                 >
-                  {s}
+                  {s === "pending" ? "In Progress" : s}
                 </button>
               ))}
             </div>
