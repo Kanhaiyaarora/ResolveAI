@@ -21,7 +21,6 @@ const Sidebar = ({ role, onLogout, isOpen, onClose }) => {
     ? [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
         { id: "tickets", label: "All Tickets", icon: Ticket, path: "/tickets" },
-        { id: "assign", label: "Assign Tickets", icon: UserPlus, path: "/tickets?view=unassigned" },
         { id: "knowledge-base", label: "Knowledge Base", icon: BookOpen, path: "/admin/knowledge-base" },
         { id: "widget", label: "Widget Settings", icon: Code2, path: "/admin/widget" },
         { id: "agents", label: "My Agents", icon: Users, path: "/admin/agents" },
