@@ -202,3 +202,33 @@ export const getTicketByIdController = async (req, res) => {
     });
   }
 };
+
+
+// 📊 GET TICKET STATS
+export const getTicketStatsController = async (req, res) => {
+  try {
+    const totalTickets = await Ticket.countDocuments({ companyId: req.user.companyId });
+    const openTickets = await Ticket.countDocuments({ companyId: req.user.companyId, status: "open" });
+    const resolvedTickets = await Ticket.countDocuments({ companyId: req.user.companyId, status: "resolved" });
+    
+    // For agents, we might want their specific stats too
+    const myTotalTickets = await Ticket.countDocuments({ assignedTo: req.user._id });
+    const myResolvedTickets = await Ticket.countDocuments({ assignedTo: req.user._id, status: "resolved" });
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        total: totalTickets,
+        open: openTickets,
+        resolved: resolvedTickets,
+        myTotal: myTotalTickets,
+        myResolved: myResolvedTickets
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

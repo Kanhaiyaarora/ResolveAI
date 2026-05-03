@@ -7,6 +7,7 @@ import {
     assignTicketController,
     updateTicketStatusController,
     getTicketByIdController,
+    getTicketStatsController,
 } from "../controllers/ticket.controller.js";
 
 import { authenticateUser } from "../middlewares/auth.middleware.js";
@@ -52,6 +53,12 @@ ticketRouter.patch("/:id/status", authenticateUser,
 //  GET TICKET BY ID
 ticketRouter.get("/:id", authenticateUser,
     getTicketByIdController
+);
+
+
+//  GET STATS
+ticketRouter.get("/stats", authenticateUser,
+    getTicketStatsController
 );
 
 

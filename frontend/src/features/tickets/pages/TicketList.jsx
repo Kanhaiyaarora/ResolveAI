@@ -3,11 +3,17 @@ import { useSelector } from "react-redux";
 import { getAllTickets, getMyTickets } from "../service/ticket.api";
 import TicketCard from "../components/TicketCard";
 import TicketSkeleton from "../components/TicketSkeleton";
-import { Filter, Search, Plus, Loader2 } from "lucide-react";
+import { Filter, Search, Plus, Loader2, Ticket } from "lucide-react";
 import Button from "../../auth/components/Button";
+
+import { useLocation } from "react-router";
 
 const TicketList = () => {
   const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const view = queryParams.get("view");
+
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ status: "", priority: "" });
@@ -15,9 +21,16 @@ const TicketList = () => {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const data = user.role === "admin" 
-        ? await getAllTickets(filter) 
-        : await getMyTickets();
+      let data;
+      if (user.role === "admin") {
+        data = await getAllTickets(filter);
+        // If view=unassigned, client-side filter for now (or update backend)
+        if (view === "unassigned") {
+          data.tickets = data.tickets.filter(t => !t.assignedTo || t.assignedTo.length === 0);
+        }
+      } else {
+        data = await getMyTickets();
+      }
       setTickets(data.tickets);
     } catch (error) {
       console.error("Failed to fetch tickets:", error);
@@ -28,7 +41,7 @@ const TicketList = () => {
 
   useEffect(() => {
     fetchTickets();
-  }, [user.role, filter]);
+  }, [user.role, filter, view]);
 
   return (
     <div className="space-y-6">

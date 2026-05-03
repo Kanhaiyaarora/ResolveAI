@@ -42,3 +42,8 @@ export async function getAgents() {
   const response = await api.get("/api/auth/agents");
   return response.data;
 }
+
+export async function getTicketStats() {
+  const response = await api.get("/api/tickets/stats");
+  return response.data;
+}

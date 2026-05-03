@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllTickets, getAgents } from "../../tickets/service/ticket.api";
+import { getAllTickets, getAgents, getTicketStats } from "../../tickets/service/ticket.api";
 import { 
   Users, 
   Ticket, 
@@ -22,14 +22,15 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const ticketData = await getAllTickets();
-        const agentData = await getAgents();
+        const [statsData, agentData] = await Promise.all([
+          getTicketStats(),
+          getAgents()
+        ]);
         
-        const tickets = ticketData.tickets;
         setStats({
-          total: tickets.length,
-          open: tickets.filter(t => t.status === 'open').length,
-          resolved: tickets.filter(t => t.status === 'resolved').length,
+          total: statsData.stats.total,
+          open: statsData.stats.open,
+          resolved: statsData.stats.resolved,
           agents: agentData.agents.length
         });
       } catch (error) {

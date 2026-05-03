@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getMyTickets } from "../../tickets/service/ticket.api";
+import { getMyTickets, getTicketStats } from "../../tickets/service/ticket.api";
 import { 
   Ticket, 
   CheckCircle, 
@@ -12,13 +12,22 @@ import TicketCard from "../../tickets/components/TicketCard";
 
 const AgentDashboard = () => {
   const [tickets, setTickets] = useState([]);
+  const [myStats, setMyStats] = useState({ active: 0, resolved: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await getMyTickets();
-        setTickets(data.tickets);
+        const [statsData, ticketsData] = await Promise.all([
+          getTicketStats(),
+          getMyTickets()
+        ]);
+        
+        setMyStats({
+          active: statsData.stats.myTotal,
+          resolved: statsData.stats.myResolved
+        });
+        setTickets(ticketsData.tickets);
       } catch (error) {
         console.error("Error fetching stats:", error);
       } finally {
@@ -32,8 +41,8 @@ const AgentDashboard = () => {
   const resolvedCount = tickets.filter(t => t.status === 'resolved').length;
 
   const stats = [
-    { label: "My Active Tickets", value: openTickets.length, icon: Zap, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Total Resolved", value: resolvedCount, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "My Active Tickets", value: myStats.active, icon: Zap, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { label: "Total Resolved", value: myStats.resolved, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
     { label: "SLA Progress", value: "94%", icon: Target, color: "text-blue-500", bg: "bg-blue-500/10" },
   ];
 
