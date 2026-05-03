@@ -11,7 +11,7 @@ const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans selection:bg-emerald-500/30">
+    <div className="h-screen overflow-hidden bg-slate-950 font-sans selection:bg-emerald-500/30">
       <Sidebar 
         role={user?.role} 
         onLogout={handleLogoutUser} 
@@ -19,9 +19,9 @@ const DashboardLayout = () => {
         onClose={() => setIsSidebarOpen(false)} 
       />
       
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col h-screen">
         <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
-        <main className={`flex-1 p-4 sm:p-8 transition-all duration-300 ${isSidebarOpen ? 'blur-sm lg:blur-none' : ''} lg:ml-64`}>
+        <main className={`flex-1 overflow-y-auto p-4 sm:p-8 transition-all duration-300 ${isSidebarOpen ? 'blur-sm lg:blur-none' : ''} lg:ml-64`}>
           <Outlet />
         </main>
       </div>

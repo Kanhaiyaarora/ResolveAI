@@ -32,7 +32,7 @@ const WidgetSettings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const data = await getWidgetSettings();
+        const data = await getWidgetSettings(user?.companyId);
         if (data.success) {
           setSettings({ ...DEFAULT_SETTINGS, ...data.settings });
         }
@@ -97,7 +97,7 @@ const WidgetSettings = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10">
         {/* ── Left: Settings Form ── */}
         <div className="space-y-6">
 

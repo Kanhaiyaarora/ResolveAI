@@ -11,10 +11,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getWidgetSettings() {
-  // Read companyId from localStorage (stored after login)
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const response = await api.get(`/api/company/widget-settings?cid=${user.companyId}`);
+export async function getWidgetSettings(companyId) {
+  const response = await api.get(`/api/company/widget-settings?cid=${companyId}`);
   return response.data;
 }
 

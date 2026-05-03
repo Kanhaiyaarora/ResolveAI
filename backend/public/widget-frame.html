@@ -25,7 +25,10 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    body::-webkit-scrollbar { display: none; }
 
     /* ── Header ── */
     .header {
@@ -59,9 +62,9 @@
       flex: 1; overflow-y: auto; padding: 16px 14px;
       display: flex; flex-direction: column; gap: 12px;
       scroll-behavior: smooth;
+      scrollbar-width: none;
     }
-    .messages::-webkit-scrollbar { width: 4px; }
-    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    .messages::-webkit-scrollbar { display: none; }
 
     .msg { display: flex; align-items: flex-end; gap: 8px; max-width: 86%; }
     .msg.bot, .msg.agent { align-self: flex-start; }
@@ -128,12 +131,9 @@
       font-size: 13px; font-family: inherit; resize: none;
       max-height: 100px; line-height: 1.5; outline: none;
       transition: border-color .2s;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
+      scrollbar-width: none;
     }
-    textarea::-webkit-scrollbar { width: 4px; }
-    textarea::-webkit-scrollbar-track { background: transparent; }
-    textarea::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    textarea::-webkit-scrollbar { display: none; }
     textarea::placeholder { color: var(--muted); }
     textarea:focus { border-color: var(--primary); }
 
@@ -146,16 +146,6 @@
     .send-btn:hover:not(:disabled) { transform: scale(1.07); }
     .send-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-    /* ── Empty state ── */
-    .empty-state {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; text-align: center;
-      padding: 24px; gap: 10px; color: var(--muted);
-    }
-    .empty-state svg { opacity: .35; }
-    .empty-state h3 { font-size: 15px; color: var(--text); font-weight: 600; }
-    .empty-state p { font-size: 13px; line-height: 1.5; }
-
     .powered {
       text-align: center; font-size: 10px; color: var(--muted);
       padding: 6px 0 8px; opacity: .6; flex-shrink: 0;
@@ -163,59 +153,81 @@
   </style>
 </head>
 <body>
+
 <script>
-  // ── Parse URL params ────────────────────────────────────────────────────────
+  // ── Parse URL params (Initial Fallbacks) ───────────────────────────────────
   var params = new URLSearchParams(window.location.search);
   var companyId = params.get("cid")   || "";
   var sessionId = params.get("sid")   || "";
-  var primaryColor = params.get("color") || "#10b981";
-  var convId    = params.get("convId") || "";
-  var botName   = params.get("botName")  || "Support Bot";
-  var welcome   = params.get("welcome")  || "Hi! How can I help you today?";
   var API_BASE  = params.get("api")    || window.location.origin;
+  var convId    = params.get("convId") || "";
 
-  // Apply brand color as CSS variable
-  document.documentElement.style.setProperty("--primary", primaryColor);
+  // Global settings state
+  var currentBotName = "Support Bot";
+
+  // ── Fetch Latest Settings from API (Ensures real-time updates) ─────────────
+  fetch(API_BASE + "/api/company/widget-settings?cid=" + companyId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        applySettings(data.settings);
+      }
+    })
+    .catch(function(err) {
+      applySettings({
+        primaryColor: params.get("color") || "#10b981",
+        botName: params.get("botName") || "Support Bot",
+        welcomeMessage: params.get("welcome") || "Hi! How can I help you today?"
+      });
+    });
+
+  function applySettings(settings) {
+    var color = settings.primaryColor || "#10b981";
+    currentBotName = settings.botName || "Support Bot";
+    var welcome = settings.welcomeMessage || "Hi! How can I help you today?";
+
+    document.documentElement.style.setProperty("--primary", color);
+    document.getElementById("botNameEl").textContent = currentBotName;
+    document.getElementById("avatarEl").textContent = currentBotName.charAt(0).toUpperCase();
+
+    if (document.getElementById("messages").children.length === 0) {
+      addBotMessage(welcome);
+    }
+  }
 </script>
 
-<!-- ── Header ── -->
 <div class="header">
   <div class="header-avatar" id="avatarEl">A</div>
   <div class="header-info">
     <div class="header-name" id="botNameEl">Support Bot</div>
     <div class="header-status"><span class="dot"></span> Online</div>
   </div>
-  <button class="close-btn" onclick="closeWidget()" aria-label="Close chat">
+  <button class="close-btn" onclick="closeWidget()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   </button>
 </div>
 
-<!-- ── Messages container ── -->
 <div class="messages" id="messages"></div>
 <div id="escalationBanner" style="display:none" class="escalation-banner">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-  Connected to a live agent! They will reply shortly.
+  Connected to live agent!
 </div>
 
-<!-- ── Typing indicator (hidden by default) ── -->
 <div class="typing" id="typingEl" style="display:none">
   <span></span><span></span><span></span>
 </div>
 
-<!-- ── Input ── -->
 <div class="input-area">
   <textarea id="inputEl" placeholder="Type your message..." rows="1" onkeydown="handleKey(event)"></textarea>
-  <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send message">
+  <button class="send-btn" id="sendBtn" onclick="sendMessage()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
 
 <div class="powered">Powered by ResolveAI</div>
 
-<!-- ── Socket.io CDN ── -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-  // ─── State ─────────────────────────────────────────────────────────────────
   var currentConvId  = convId || null;
   var currentTicketId = null;
   var isEscalated    = false;
@@ -224,263 +236,118 @@
   var inputEl        = document.getElementById("inputEl");
   var sendBtn        = document.getElementById("sendBtn");
   var typingEl       = document.getElementById("typingEl");
-  var botNameEl      = document.getElementById("botNameEl");
-  var avatarEl       = document.getElementById("avatarEl");
 
-  // Apply bot name
-  botNameEl.textContent = botName;
-  avatarEl.textContent  = botName.charAt(0).toUpperCase();
+  if (currentConvId) reconnectSocket();
 
-  // ─── Show welcome message ───────────────────────────────────────────────────
-  addBotMessage(welcome);
-
-  // If returning user had an active conversation, reconnect socket
-  if (currentConvId) {
-    reconnectSocket();
-  }
-
-  // ─── Send message ──────────────────────────────────────────────────────────
   function sendMessage() {
     var text = inputEl.value.trim();
     if (!text) return;
     inputEl.value = "";
-    autoResize(inputEl);
     addUserMessage(text);
-
     if (isEscalated && socket && currentTicketId) {
-      // Live agent mode — send via Socket.io
-      socket.emit("send_message", {
-        ticketId:       currentTicketId,
-        conversationId: currentConvId,
-        message:        text,
-      });
+      socket.emit("send_message", { ticketId: currentTicketId, conversationId: currentConvId, message: text });
     } else {
-      // AI mode — send via REST
       askBot(text);
     }
   }
 
   function handleKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-    autoResize(inputEl);
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
 
-  // ─── Bot REST call ─────────────────────────────────────────────────────────
   function askBot(message) {
-    setLoading(true);
-    showTyping();
-
+    setLoading(true); showTyping();
     fetch(API_BASE + "/api/chat/bot", {
-      method:  "POST",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyId, sessionId, message }),
+      body: JSON.stringify({ companyId, sessionId, message })
     })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        hideTyping();
-        setLoading(false);
-
-        if (!data.success) {
-          addBotMessage("Sorry, something went wrong. Please try again.");
-          return;
-        }
-
-        addBotMessage(data.reply);
-
-        if (data.escalated && data.conversationId) {
-          currentConvId   = data.conversationId;
-          currentTicketId = data.ticketId;
-          // Notify parent to persist conversationId
-          window.parent.postMessage(
-            { type: "RAI_CONV_ID", conversationId: currentConvId },
-            "*"
-          );
-          startSocket();
-        }
-      })
-      .catch(function() {
-        hideTyping();
-        setLoading(false);
-        addBotMessage("Connection error. Please check your internet and try again.");
-      });
+    .then(r => r.json())
+    .then(data => {
+      hideTyping(); setLoading(false);
+      addBotMessage(data.reply);
+      if (data.escalated) {
+        currentConvId = data.conversationId;
+        currentTicketId = data.ticketId;
+        window.parent.postMessage({ type: "RAI_CONV_ID", conversationId: currentConvId }, "*");
+        startSocket();
+      }
+    });
   }
 
-  // ─── Socket.io — Real-time live agent chat ─────────────────────────────────
   function startSocket() {
     document.getElementById("escalationBanner").style.display = "flex";
     isEscalated = true;
-
-    socket = io(API_BASE, {
-      query: { sessionId, companyId },
-    });
-
-    socket.on("connect", function() {
-      socket.emit("join_ticket", currentTicketId);
-    });
-
-    socket.on("receive_message", function(data) {
-      hideTyping();
-      addAgentMessage(data.message);
-    });
-
-    socket.on("user_typing", function() {
-      showTyping();
-      setTimeout(hideTyping, 3000);
-    });
-
-    socket.on("disconnect", function() {
-      addSystemMessage("Connection lost. Trying to reconnect...");
-    });
+    socket = io(API_BASE, { query: { sessionId, companyId } });
+    socket.on("connect", () => socket.emit("join_ticket", currentTicketId));
+    socket.on("receive_message", data => addAgentMessage(data.message));
   }
 
-  // ─── Reconnect for returning visitors ─────────────────────────────────────
-  function reconnectSocket() {
-    // We don't know ticketId from convId without an API call — 
-    // just show a soft message; full reconnect happens on next escalation or 
-    // if ticketId was also persisted. For now show resumption info.
-    addSystemMessage("Welcome back! Your previous conversation has been restored.");
-  }
+  function reconnectSocket() { addSystemMessage("Welcome back!"); }
 
-  // ─── UI helpers ───────────────────────────────────────────────────────────
-  function now() {
-    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
+  function now() { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
 
   function addBotMessage(text) {
-    var wrap = document.createElement("div");
-    wrap.className = "msg bot";
-    var bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerHTML = parseMarkdown(text);
-    var time = document.createElement("div");
-    time.className = "msg-time";
-    time.textContent = now();
-    var inner = document.createElement("div");
-    inner.appendChild(bubble);
-    inner.appendChild(time);
-    var avatar = document.createElement("div");
-    avatar.className = "msg-avatar";
-    avatar.textContent = botName.charAt(0);
-    wrap.appendChild(avatar);
-    wrap.appendChild(inner);
+    var wrap = createMsgWrap("bot", text, currentBotName.charAt(0));
     appendMsg(wrap);
   }
-
   function addUserMessage(text) {
-    var wrap = document.createElement("div");
-    wrap.className = "msg user";
-    wrap.innerHTML =
-      '<div><div class="bubble">' + escapeHtml(text) + "</div>" +
-      '<div class="msg-time">' + now() + "</div></div>" +
-      '<div class="msg-avatar" style="background:var(--surface)">You</div>';
+    var wrap = createMsgWrap("user", text, "You");
     appendMsg(wrap);
   }
-
   function addAgentMessage(text) {
+    var wrap = createMsgWrap("agent", text, "A");
+    appendMsg(wrap);
+  }
+  function createMsgWrap(type, text, avatarChar) {
     var wrap = document.createElement("div");
-    wrap.className = "msg agent";
+    wrap.className = "msg " + type;
     var bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.innerHTML = parseMarkdown(text);
-    var time = document.createElement("div");
-    time.className = "msg-time";
-    time.textContent = "Agent · " + now();
-    var inner = document.createElement("div");
-    inner.appendChild(bubble);
-    inner.appendChild(time);
     var avatar = document.createElement("div");
     avatar.className = "msg-avatar";
-    avatar.style.cssText = "background:var(--primary);color:#fff";
-    avatar.textContent = "A";
+    avatar.textContent = avatarChar;
     wrap.appendChild(avatar);
-    wrap.appendChild(inner);
-    appendMsg(wrap);
+    wrap.appendChild(bubble);
+    return wrap;
   }
-
   function addSystemMessage(text) {
     var div = document.createElement("div");
-    div.style.cssText = "text-align:center;font-size:11px;color:var(--muted);padding:4px 0";
+    div.style.cssText = "text-align:center;font-size:11px;color:var(--muted);padding:4px";
     div.textContent = text;
     appendMsg(div);
   }
-
-  function appendMsg(el) {
-    messagesEl.appendChild(el);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function showTyping() { typingEl.style.display = "flex"; messagesEl.scrollTop = messagesEl.scrollHeight; }
-  function hideTyping()  { typingEl.style.display = "none"; }
+  function appendMsg(el) { messagesEl.appendChild(el); messagesEl.scrollTop = messagesEl.scrollHeight; }
+  function showTyping() { typingEl.style.display = "flex"; }
+  function hideTyping() { typingEl.style.display = "none"; }
   function setLoading(v) { sendBtn.disabled = v; }
-
-  function closeWidget() {
-    window.parent.postMessage({ type: "RAI_CLOSE" }, "*");
-  }
-
-  function autoResize(el) {
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 100) + "px";
-  }
-  inputEl.addEventListener("input", function() { autoResize(inputEl); });
+  function closeWidget() { window.parent.postMessage({ type: "RAI_CLOSE" }, "*"); }
 
   function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
-
-  // ─── Simple Markdown → HTML renderer ──────────────────────────────────────
   function parseMarkdown(text) {
     var lines = String(text).split("\n");
-    var html  = "";
-    var inList = false;
-
+    var html = "";
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
-
-      // Headings: ### ## #
       if (/^#{1,6}\s+/.test(line)) {
-        if (inList) { html += "</ul>"; inList = false; }
-        var headingText = line.replace(/^#{1,6}\s+/, "");
-        html += "<p style='font-weight:700;color:#e2e8f0;margin:8px 0 2px'>" + inlineFormat(headingText) + "</p>";
-        continue;
-      }
-
-      // Bullet list: - or *
-      if (/^[-*]\s+/.test(line)) {
-        if (!inList) { html += "<ul style='margin:4px 0 4px 14px;padding:0;list-style:disc'>"; inList = true; }
-        var itemText = line.replace(/^[-*]\s+/, "");
-        html += "<li style='margin:2px 0'>" + inlineFormat(itemText) + "</li>";
-        continue;
-      }
-
-      // Close list before a normal line
-      if (inList) { html += "</ul>"; inList = false; }
-
-      // Empty line = spacing
-      if (line.trim() === "") {
+        html += "<p style='font-weight:700;margin:8px 0 2px'>" + inlineFormat(line.replace(/^#{1,6}\s+/, "")) + "</p>";
+      } else if (/^[-*]\s+/.test(line)) {
+        html += "<li style='margin:2px 0 2px 14px'>" + inlineFormat(line.replace(/^[-*]\s+/, "")) + "</li>";
+      } else if (line.trim() === "") {
         html += "<div style='height:6px'></div>";
-        continue;
+      } else {
+        html += "<p style='margin:2px 0'>" + inlineFormat(line) + "</p>";
       }
-
-      html += "<p style='margin:2px 0'>" + inlineFormat(line) + "</p>";
     }
-    if (inList) html += "</ul>";
     return html;
   }
-
-  // Inline formatting: **bold**, *italic*, `code`
   function inlineFormat(str) {
     str = escapeHtml(str);
-    // bold
     str = str.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    // italic (single star, not double)
     str = str.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>");
-    // inline code
-    str = str.replace(/`(.+?)`/g, "<code style='background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:12px;font-family:monospace'>$1</code>");
     return str;
   }
 </script>

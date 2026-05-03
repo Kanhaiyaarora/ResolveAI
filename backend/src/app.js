@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 // middlewares
 app.use(cors({
-  origin: "http://localhost:5173", // Replace with your frontend URL if different
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5500", "http://127.0.0.1:5500"], // Added common test origins
   credentials: true
 }));
 app.use(express.json());

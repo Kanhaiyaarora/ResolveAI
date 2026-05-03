@@ -22,18 +22,20 @@
     localStorage.setItem(SESSION_KEY, sessionId);
   }
 
-  // ─── 3. Fetch widget settings, then boot ───────────────────────────────────
-  fetch(API_BASE + "/api/company/widget-settings?cid=" + companyId)
+  // ─── 3. Fetch widget settings with cache buster ───────────────────────────
+  fetch(API_BASE + "/api/company/widget-settings?cid=" + companyId + "&t=" + Date.now())
     .then(function (r) { return r.json(); })
     .then(function (data) {
       initWidget(data.success ? data.settings : {});
     })
-    .catch(function () {
+    .catch(function (err) {
+      console.error("[ResolveAI] Fetch error:", err);
       initWidget({});
     });
 
   function initWidget(settings) {
-    var color    = settings.primaryColor  || "#10b981";
+    // Check both primaryColor and color (for backward compatibility if needed)
+    var color    = settings.primaryColor || settings.color || "#10b981";
     var position = settings.position      || "right";
     var botName  = settings.botName       || "Support Bot";
     var welcome  = settings.welcomeMessage|| "Hi! How can we help you today?";
@@ -44,7 +46,8 @@
       "#rai-btn{" +
         "position:fixed;" + position + ":24px;bottom:24px;" +
         "width:56px;height:56px;border-radius:50%;" +
-        "background:" + color + ";border:none;cursor:pointer;" +
+        "background:" + color + " !important;" +
+        "border:none;cursor:pointer;" +
         "z-index:2147483647;box-shadow:0 4px 24px rgba(0,0,0,.28);" +
         "display:flex;align-items:center;justify-content:center;" +
         "transition:transform .2s,box-shadow .2s;" +
@@ -68,6 +71,7 @@
     var btn = document.createElement("button");
     btn.id = "rai-btn";
     btn.setAttribute("aria-label", "Open support chat");
+    btn.style.backgroundColor = color; // Force apply color directly to element
     btn.innerHTML = chatIcon();
     document.body.appendChild(btn);
 

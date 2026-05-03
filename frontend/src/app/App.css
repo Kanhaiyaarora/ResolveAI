@@ -66,3 +66,12 @@ body {
     transform: translateX(100%);
   }
 }
+
+/* ── Hide scrollbars globally (scroll still works) ── */
+* {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge */
+}
+*::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari / Opera */
+}
