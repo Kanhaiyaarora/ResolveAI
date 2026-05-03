@@ -14,12 +14,18 @@ import ChatPage from "../features/chat/pages/ChatPage";
 import NotFoundPage from "../features/notFound/NotFoundPage";
 import Settings from "../features/settings/pages/Settings";
 import MyAgents from "../features/agents/pages/MyAgents";
+import Home from "../features/home/HomePage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/login" replace />
   },
+  {
+    path: "/Home",
+    element: <Home />
+  },
+
   {
     path: "/login",
     element: <Login />,
