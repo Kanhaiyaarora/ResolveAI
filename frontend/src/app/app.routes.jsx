@@ -11,6 +11,7 @@ import KnowledgeBaseAdmin from "../features/knowledgeBase/pages/KnowledgeBaseAdm
 import WidgetSettings from "../features/widget/pages/WidgetSettings";
 import CreateTicket from "../features/tickets/pages/CreateTicket";
 import ChatPage from "../features/chat/pages/ChatPage";
+import NotFoundPage from "../features/notFound/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
@@ -63,5 +64,9 @@ export const router = createBrowserRouter([
         ]
       }
     ]
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />
   }
 ]);
