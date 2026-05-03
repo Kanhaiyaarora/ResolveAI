@@ -110,6 +110,25 @@ export const initSocket = (server) => {
             });
         });
 
+        // Event: User/Agent joining a specific ticket's internal discussion room
+        socket.on("join_room", (ticketId) => {
+            socket.join(`internal_${ticketId}`);
+            console.log(`[Socket] ${socket.user.role} joined internal_room for ticket_${ticketId}`);
+        });
+
+        // Event: Sending an internal message
+        socket.on("send_internal_message", (data) => {
+            const { ticketId, message } = data;
+            
+            // Broadcast to the internal room
+            socket.to(`internal_${ticketId}`).emit("receive_message", {
+                ticketId,
+                text: message.text,
+                senderId: message.senderId,
+                createdAt: message.createdAt || new Date().toISOString()
+            });
+        });
+
         socket.on("disconnect", () => {
             console.log(`[Socket] Disconnected: ${socket.id}`);
         });

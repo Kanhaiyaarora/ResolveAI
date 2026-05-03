@@ -9,8 +9,8 @@ const StatusBadge = ({ status }) => {
   };
 
   return (
-    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${styles[status] || styles.open} uppercase tracking-wider`}>
-      {status === "pending" ? "In Progress" : status}
+    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${styles[status] || styles.open} uppercase tracking-tight`}>
+      {status}
     </span>
   );
 };

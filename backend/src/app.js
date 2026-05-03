@@ -12,6 +12,7 @@ import ticketRouter from "./routes/ticket.routes.js";
 import kbRouter from "./routes/knowledgeBase.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import companyRouter from "./routes/company.routes.js";
+import messageRouter from "./routes/message.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,7 @@ app.use("/api/tickets", ticketRouter);
 app.use("/api/knowledge-base", kbRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/company", companyRouter);
+app.use("/api/messages", messageRouter);
 
 passport.use(
   new GoogleStrategy(

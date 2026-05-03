@@ -12,15 +12,18 @@ import {
   Send, 
   MoreVertical,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  MessageSquare
 } from "lucide-react";
 import Button from "../../auth/components/Button";
 import { formatDistanceToNow } from "date-fns";
+import ChatBox from "../../chat/components/ChatBox";
 
 const TicketDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const [showChat, setShowChat] = useState(false);
   
   const { updateStatus, assignAgent } = useTickets(user.role);
   const [ticket, setTicket] = useState(null);
@@ -139,34 +142,24 @@ const TicketDetails = () => {
             </div>
           </div>
 
-          {/* Activity Section Placeholder */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6">
-             <h3 className="text-white font-semibold mb-6 flex items-center gap-2">
-               <Send size={18} className="text-emerald-500" />
-               Internal Discussion
-             </h3>
-             
-             <div className="space-y-4 mb-6">
-               <div className="flex gap-3">
-                 <div className="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0" />
-                 <div className="bg-slate-800/50 p-4 rounded-2xl rounded-tl-none flex-1">
-                   <p className="text-sm text-slate-300">I've looked into the logs, seems like a caching issue on the CDN side. Working on a purge now.</p>
-                   <span className="text-[10px] text-slate-500 mt-2 block uppercase font-bold">Today, 10:45 AM</span>
-                 </div>
-               </div>
-             </div>
-
-             <div className="flex gap-4">
-                <input 
-                  type="text" 
-                  placeholder="Type a message to your team..."
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                />
-                <Button size="icon" className="w-12 h-12 flex items-center justify-center">
-                  <Send size={20} />
-                </Button>
-             </div>
-          </div>
+          {/* Functional Chat Section */}
+          {!showChat ? (
+            <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-12 flex flex-col items-center justify-center text-center gap-4">
+              <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                <MessageSquare className="text-emerald-500" size={32} />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-xl">Internal Discussion</h3>
+                <p className="text-slate-400 text-sm mt-1 max-w-sm">Collaborate with your team in real-time about this ticket. All messages are stored for future reference.</p>
+              </div>
+              <Button onClick={() => setShowChat(true)} className="flex items-center gap-2 mt-2">
+                <MessageSquare size={18} />
+                Start Chat
+              </Button>
+            </div>
+          ) : (
+            <ChatBox ticketId={id} />
+          )}
         </div>
 
         {/* Sidebar Actions */}
