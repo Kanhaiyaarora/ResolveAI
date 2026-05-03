@@ -23,6 +23,17 @@ export async function sendMessage(ticketId, text) {
   return response.data;
 }
 
+// 🌐 CUSTOMER (EXTERNAL) CHAT
+export async function getCustomerHistory(conversationId) {
+  const response = await api.get(`/api/chat/${conversationId}/history`);
+  return response.data;
+}
+
+export async function sendCustomerMessage(conversationId, content) {
+  const response = await api.post(`/api/chat/${conversationId}/message`, { content });
+  return response.data;
+}
+
 export async function getAiSuggestions(message) {
   const response = await api.post("/api/ai/suggest-reply", { message });
   return response.data;

@@ -13,7 +13,8 @@
 
   // ─── 2. Session & conversation persistence via localStorage ────────────────
   var SESSION_KEY = "resolveai_session_" + companyId;
-  var CONV_KEY = "resolveai_conv_" + companyId;
+  var CONV_KEY    = "resolveai_conv_" + companyId;
+  var TICKET_KEY  = "resolveai_ticket_" + companyId;
 
   var sessionId = localStorage.getItem(SESSION_KEY);
   if (!sessionId) {
@@ -77,12 +78,15 @@
 
     // ─── 6. Iframe (UI lives here — fully isolated CSS) ──────────────────────
     var convId = localStorage.getItem(CONV_KEY) || "";
+    var ticketId = localStorage.getItem(TICKET_KEY) || "";
+    
     var iframeSrc =
       API_BASE + "/widget-frame.html" +
       "?cid="      + encodeURIComponent(companyId) +
       "&sid="      + encodeURIComponent(sessionId) +
       "&color="    + encodeURIComponent(color) +
       "&convId="   + encodeURIComponent(convId) +
+      "&ticketId=" + encodeURIComponent(ticketId) +
       "&botName="  + encodeURIComponent(botName) +
       "&welcome="  + encodeURIComponent(welcome) +
       "&api="      + encodeURIComponent(API_BASE);
@@ -107,6 +111,9 @@
 
       if (event.data && event.data.type === "RAI_CONV_ID") {
         localStorage.setItem(CONV_KEY, event.data.conversationId);
+      }
+      if (event.data && event.data.type === "RAI_TICKET_ID") {
+        localStorage.setItem(TICKET_KEY, event.data.ticketId);
       }
       if (event.data && event.data.type === "RAI_CLOSE") {
         isOpen = false;

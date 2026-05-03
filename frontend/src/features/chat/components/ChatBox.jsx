@@ -4,8 +4,12 @@ import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import { MessageSquare, Loader2, Sparkles, AlertTriangle } from "lucide-react";
 
-const ChatBox = ({ ticketId, fullHeight = false }) => {
-  const { messages, suggestions, loading, sending, error, sendMessage, currentUser } = useChat(ticketId);
+const ChatBox = ({ ticketId, conversationId, mode = "internal", fullHeight = false }) => {
+  const { messages, suggestions, loading, sending, error, sendMessage, currentUser } = useChat(
+    mode === "internal" ? ticketId : conversationId,
+    mode,
+    ticketId
+  );
   const scrollRef = useRef(null);
 
   // Auto-scroll to bottom on new messages
@@ -24,8 +28,10 @@ const ChatBox = ({ ticketId, fullHeight = false }) => {
       {/* Header */}
       <div className="p-4 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare size={18} className="text-emerald-500" />
-          <h3 className="text-white font-bold text-sm">Internal Discussion</h3>
+          <MessageSquare size={18} className={mode === "internal" ? "text-emerald-500" : "text-blue-500"} />
+          <h3 className="text-white font-bold text-sm">
+            {mode === "internal" ? "Internal Discussion" : "Live Customer Chat"}
+          </h3>
           <span className="text-[10px] text-slate-500">({messages.length} messages)</span>
         </div>
         {currentUser?.role === "agent" && (

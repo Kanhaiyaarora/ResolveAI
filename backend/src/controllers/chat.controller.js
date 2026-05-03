@@ -132,3 +132,81 @@ export const getActiveConversationsController = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+/**
+ * GET /api/chat/customer-history/:sessionId
+ * PUBLIC: Allows customers to fetch their own history
+ */
+export const getCustomerChatHistoryController = async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const { companyId } = req.query;
+
+        if (!sessionId || !companyId) {
+            return res.status(400).json({ success: false, message: "Missing sessionId or companyId" });
+        }
+
+        // Find the customer to get their internal ID
+        const customer = await Customer.findOne({ sessionId, companyId });
+        if (!customer) {
+            return res.status(200).json({ success: true, messages: [] });
+        }
+
+        // Find conversation associated with this customer
+        const conversation = await Conversation.findOne({ customerId: customer._id, companyId }).sort({ createdAt: -1 });
+        if (!conversation) {
+            return res.status(200).json({ success: true, messages: [] });
+        }
+
+        const messages = await Message.find({ conversationId: conversation._id })
+            .sort({ createdAt: 1 });
+
+        res.status(200).json({
+            success: true,
+            messages,
+            ticketId: await Ticket.findOne({ conversationId: conversation._id }).then(t => t?._id)
+        });
+    } catch (error) {
+        console.error("Error fetching customer history:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * POST /api/chat/:conversationId/message
+ * AGENT SENDS MESSAGE TO CUSTOMER
+ */
+export const sendCustomerMessageController = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const { content } = req.body;
+        const agentId = req.user.id;
+        const companyId = req.user.companyId;
+
+        // 1. Create message
+        const message = await Message.create({
+            conversationId,
+            companyId,
+            senderType: "agent",
+            senderId: agentId,
+            senderModel: "User",
+            content
+        });
+
+        // 2. Update conversation
+        await Conversation.findByIdAndUpdate(conversationId, {
+            lastMessage: content,
+            lastMessageAt: new Date()
+        });
+
+        const populatedMessage = await Message.findById(message._id).populate("senderId", "name email");
+
+        res.status(201).json({
+            success: true,
+            message: populatedMessage
+        });
+    } catch (error) {
+        console.error("Error sending agent message:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

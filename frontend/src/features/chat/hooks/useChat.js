@@ -1,11 +1,23 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
-import { getMessages, sendMessage as sendMessageApi, getAiSuggestions } from "../service/chat.api";
+import { 
+  getMessages, 
+  sendMessage as sendMessageApi, 
+  getAiSuggestions,
+  getCustomerHistory,
+  sendCustomerMessage
+} from "../service/chat.api";
 import { useSelector } from "react-redux";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export const useChat = (ticketId) => {
+/**
+ * Hook for both Internal (Team) and External (Customer) chat.
+ * @param {string} id - Ticket ID (internal) or Conversation ID (external)
+ * @param {string} mode - 'internal' or 'external'
+ * @param {string} ticketId - Required for 'external' mode to join socket room
+ */
+export const useChat = (id, mode = "internal", ticketId = null) => {
   const [messages, setMessages] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,15 +39,25 @@ export const useChat = (ticketId) => {
 
   // Socket + message history
   useEffect(() => {
-    if (!ticketId || !token) return;
+    if (!id || !token) return;
 
     // 1. Fetch message history
     const fetchHistory = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getMessages(ticketId);
-        setMessages(data.messages || []);
+        let data;
+        if (mode === "internal") {
+          data = await getMessages(id);
+        } else {
+          data = await getCustomerHistory(id);
+        }
+        // Normalize message field names if necessary (content vs text)
+        const normalizedMessages = (data.messages || []).map(m => ({
+           ...m,
+           text: m.text || m.content // Internal uses .text, External uses .content
+        }));
+        setMessages(normalizedMessages);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load messages");
       } finally {
@@ -50,62 +72,83 @@ export const useChat = (ticketId) => {
     });
     socketRef.current = socket;
 
-    // 3. Join the ticket's room
-    socket.emit("join_room", ticketId);
+    // 3. Join the correct room
+    if (mode === "internal") {
+      socket.emit("join_room", id);
+    } else {
+      // For external, we join the ticket room to communicate with the customer
+      socket.emit("join_ticket", ticketId);
+    }
 
-    // 4. Listen for incoming messages from other users
+    // 4. Listen for incoming messages
     socket.on("receive_message", (incoming) => {
-      if (incoming.ticketId === ticketId) {
-        // Prevent duplicates — check if we already have this message
+      // Filter by correct room/context
+      const isInternalMatch = mode === "internal" && incoming.ticketId === id;
+      const isExternalMatch = mode === "external" && (incoming.ticketId === ticketId || incoming.conversationId === id);
+
+      if (isInternalMatch || isExternalMatch) {
         setMessages((prev) => {
-          const isDuplicate = prev.some(
-            (m) => m._id === incoming._id || 
-            (m.text === incoming.text && m.createdAt === incoming.createdAt && 
-             (m.senderId?._id || m.senderId) === (incoming.senderId?._id || incoming.senderId))
-          );
+          const isDuplicate = prev.some((m) => m._id === incoming._id);
           if (isDuplicate) return prev;
-          return [...prev, incoming];
+          
+          return [...prev, {
+            ...incoming,
+            text: incoming.text || incoming.message || incoming.content
+          }];
         });
 
-        // Trigger AI suggestions for the agent when someone else sends a message
+        // AI suggestions for agent
         const incomingSenderId = incoming.senderId?._id || incoming.senderId;
         if (incomingSenderId !== user?.id) {
-          fetchSuggestions(incoming.text);
+          fetchSuggestions(incoming.text || incoming.message || incoming.content);
         }
       }
     });
 
-    // 5. Cleanup on unmount or ticketId change
     return () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [ticketId, token, user?.id, fetchSuggestions]);
+  }, [id, mode, ticketId, token, user?.id, fetchSuggestions]);
 
   // Send a message
   const sendMessage = async (text) => {
     if (!text.trim() || sending) return;
     setSending(true);
-    setSuggestions([]); // Clear AI suggestions on send
+    setSuggestions([]);
 
     try {
-      // 1. Save to DB via API
-      const response = await sendMessageApi(ticketId, text);
-      const newMessage = response.message;
+      let newMessage;
+      if (mode === "internal") {
+        const response = await sendMessageApi(id, text);
+        newMessage = response.message;
+        newMessage.text = newMessage.text || newMessage.content;
+      } else {
+        const response = await sendCustomerMessage(id, text);
+        newMessage = response.message;
+        newMessage.text = newMessage.text || newMessage.content;
+      }
 
-      // 2. Add to local state immediately
       setMessages((prev) => [...prev, newMessage]);
 
-      // 3. Broadcast to other users in the room via socket
+      // Broadcast via socket
       if (socketRef.current?.connected) {
-        socketRef.current.emit("send_internal_message", {
-          ticketId,
-          message: newMessage,
-        });
+        if (mode === "internal") {
+          socketRef.current.emit("send_internal_message", {
+            ticketId: id,
+            message: newMessage,
+          });
+        } else {
+          socketRef.current.emit("send_message", {
+            ticketId: ticketId,
+            conversationId: id,
+            message: text,
+          });
+        }
       }
     } catch (err) {
-      setError("Failed to send message. Please try again.");
-      console.error("Send message error:", err);
+      setError("Failed to send message.");
+      console.error(err);
     } finally {
       setSending(false);
     }
