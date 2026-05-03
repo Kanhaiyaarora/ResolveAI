@@ -1,16 +1,27 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
-import { getMessages, sendMessage as sendMessageApi } from "../service/chat.api";
+import { getMessages, sendMessage as sendMessageApi, getAiSuggestions } from "../service/chat.api";
 import { useSelector } from "react-redux";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const useChat = (ticketId) => {
   const [messages, setMessages] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const socketRef = useRef(null);
   const { user, token } = useSelector((state) => state.auth);
+
+  const fetchSuggestions = useCallback(async (lastMessage) => {
+    if (user?.role !== "agent") return;
+    try {
+      const data = await getAiSuggestions(lastMessage);
+      setSuggestions(data.suggestions);
+    } catch (err) {
+      console.error("AI Error:", err);
+    }
+  }, [user?.role]);
 
   useEffect(() => {
     if (!ticketId || !token) return;
@@ -39,6 +50,10 @@ export const useChat = (ticketId) => {
     socketRef.current.on("receive_message", (message) => {
       if (message.ticketId === ticketId) {
         setMessages((prev) => [...prev, message]);
+        // Trigger AI suggestions if it's from someone else
+        if (message.senderId !== user.id) {
+          fetchSuggestions(message.text);
+        }
       }
     });
 
@@ -47,10 +62,11 @@ export const useChat = (ticketId) => {
         socketRef.current.disconnect();
       }
     };
-  }, [ticketId, token]);
+  }, [ticketId, token, user.id, fetchSuggestions]);
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
+    setSuggestions([]); // Clear suggestions on send
     try {
       const response = await sendMessageApi(ticketId, text);
       const newMessage = response.message;
@@ -70,6 +86,7 @@ export const useChat = (ticketId) => {
 
   return {
     messages,
+    suggestions,
     loading,
     error,
     sendMessage,

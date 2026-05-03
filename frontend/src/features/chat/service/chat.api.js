@@ -22,3 +22,8 @@ export async function sendMessage(ticketId, text) {
   const response = await api.post("/api/messages", { ticketId, text });
   return response.data;
 }
+
+export async function getAiSuggestions(message) {
+  const response = await api.post("/api/ai/suggest-reply", { message });
+  return response.data;
+}

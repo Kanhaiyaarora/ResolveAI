@@ -48,6 +48,11 @@ export async function getTicketStats() {
   return response.data;
 }
 
+export async function getRecentActivity() {
+  const response = await api.get("/api/tickets/activity/recent");
+  return response.data;
+}
+
 export async function createTicket(ticketData) {
   const response = await api.post("/api/tickets", ticketData);
   return response.data;

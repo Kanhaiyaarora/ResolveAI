@@ -6,18 +6,30 @@ import {
   assignTicket as assignTicketApi,
   getTicketStats,
   getAgents,
+  getRecentActivity,
 } from "../service/ticket.api";
 
 export const useTickets = (role) => {
   const [tickets, setTickets] = useState([]);
   const [stats, setStats] = useState(null);
   const [agents, setAgents] = useState([]);
+  const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchActivity = useCallback(async () => {
+    try {
+      const data = await getRecentActivity();
+      setActivity(data.activity);
+      return data.activity;
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch activity");
+    }
+  }, []);
+
   const fetchAgents = useCallback(async () => {
     try {
-      const data = await getAgents;
+      const data = await getAgents();
       setAgents(data.agents);
       return data.agents;
     } catch (err) {
@@ -87,11 +99,13 @@ export const useTickets = (role) => {
     tickets,
     stats,
     agents,
+    activity,
     loading,
     error,
     fetchTickets,
     fetchStats,
     fetchAgents,
+    fetchActivity,
     updateStatus,
     assignAgent,
   };

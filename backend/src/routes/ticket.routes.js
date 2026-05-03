@@ -8,6 +8,7 @@ import {
   updateTicketStatusController,
   getTicketByIdController,
   getTicketStatsController,
+  getRecentActivityController,
 } from "../controllers/ticket.controller.js";
 
 import { authenticateUser } from "../middlewares/auth.middleware.js";
@@ -55,5 +56,8 @@ ticketRouter.get("/stats", authenticateUser, getTicketStatsController);
 
 //  GET TICKET BY ID
 ticketRouter.get("/:id", authenticateUser, getTicketByIdController);
+
+//  GET RECENT ACTIVITY
+ticketRouter.get("/activity/recent", authenticateUser, getRecentActivityController);
 
 export default ticketRouter;

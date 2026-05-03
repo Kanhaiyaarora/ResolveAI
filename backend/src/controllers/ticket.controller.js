@@ -232,3 +232,24 @@ export const getTicketStatsController = async (req, res) => {
     });
   }
 };
+
+// 🕒 GET RECENT ACTIVITY
+export const getRecentActivityController = async (req, res) => {
+  try {
+    const activity = await Ticket.find({ companyId: req.user.companyId })
+      .sort({ updatedAt: -1 })
+      .limit(5)
+      .populate("assignedTo", "name")
+      .populate("customerId", "name");
+
+    res.status(200).json({
+      success: true,
+      activity,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
