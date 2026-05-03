@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { getAgents } from "../../tickets/service/ticket.api";
+import React, { useEffect } from "react";
 import {
   Users,
   Ticket,
@@ -15,7 +14,7 @@ import { useTickets } from "../../tickets/hooks/useTickets";
 
 const AdminDashboard = () => {
   const { user } = useSelector((state) => state.auth);
-  const { stats, agents, loading, fetchStats, fetchAgents } = useTickets(user?.role);
+  const { stats, loading, fetchStats, fetchAgents } = useTickets(user?.role);
 
   useEffect(() => {
     const loadData = async () => {

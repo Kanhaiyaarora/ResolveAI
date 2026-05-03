@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
-import { 
-  getAllTickets, 
-  getMyTickets, 
-  updateTicketStatus, 
+import {
+  getAllTickets,
+  getMyTickets,
+  updateTicketStatus,
   assignTicket as assignTicketApi,
-  getTicketStats
+  getTicketStats,
+  getAgents,
 } from "../service/ticket.api";
 
 export const useTickets = (role) => {
@@ -16,7 +17,7 @@ export const useTickets = (role) => {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const data = await getAgents();
+      const data = await getAgents;
       setAgents(data.agents);
       return data.agents;
     } catch (err) {
@@ -24,22 +25,26 @@ export const useTickets = (role) => {
     }
   }, []);
 
-  const fetchTickets = useCallback(async (filters = {}) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = role === "admin" 
-        ? await getAllTickets(filters) 
-        : await getMyTickets();
-      setTickets(data.tickets);
-      return data.tickets;
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch tickets");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [role]);
+  const fetchTickets = useCallback(
+    async (filters = {}) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data =
+          role === "admin"
+            ? await getAllTickets(filters)
+            : await getMyTickets();
+        setTickets(data.tickets);
+        return data.tickets;
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch tickets");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [role],
+  );
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -58,7 +63,9 @@ export const useTickets = (role) => {
     try {
       await updateTicketStatus(id, status);
       // Optimistic update or just refresh
-      setTickets(prev => prev.map(t => t._id === id ? { ...t, status } : t));
+      setTickets((prev) =>
+        prev.map((t) => (t._id === id ? { ...t, status } : t)),
+      );
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update status");
       throw err;
@@ -69,7 +76,7 @@ export const useTickets = (role) => {
     try {
       await assignTicketApi(id, agentIds);
       // Refresh to get full agent objects if needed, or update locally
-      await fetchTickets(); 
+      await fetchTickets();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to assign agent");
       throw err;
@@ -86,6 +93,6 @@ export const useTickets = (role) => {
     fetchStats,
     fetchAgents,
     updateStatus,
-    assignAgent
+    assignAgent,
   };
 };
