@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getAgents } from "../../tickets/service/ticket.api";
-import { 
-  Users, 
-  Ticket, 
-  CheckCircle, 
-  Clock, 
+import {
+  Users,
+  Ticket,
+  CheckCircle,
+  Clock,
   TrendingUp,
   AlertCircle
 } from "lucide-react";
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     };
 
     loadData();
-    const interval = setInterval(loadData, 10000); 
+    const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
   }, [fetchStats, fetchAgents]);
 
@@ -38,7 +38,7 @@ const AdminDashboard = () => {
     { label: "Total Tickets", value: stats?.total || 0, icon: Ticket, color: "text-blue-500", bg: "bg-blue-500/10" },
     { label: "Open Issues", value: stats?.open || 0, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10" },
     { label: "Resolved", value: stats?.resolved || 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    { label: "Active Agents", value: agents.length, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { label: "Active Agents", value: stats?.activeAgents, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
   ];
 
   return (
@@ -73,30 +73,30 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center">
-           <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
-             <Clock className="text-emerald-500" size={32} />
-           </div>
-           <h4 className="text-white font-bold text-xl">SLA Compliance Tracking</h4>
-           <p className="text-slate-400 max-w-sm mt-2">
-             Analytics engine is processing recent ticket data. Detailed performance charts will appear here shortly.
-           </p>
+          <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
+            <Clock className="text-emerald-500" size={32} />
+          </div>
+          <h4 className="text-white font-bold text-xl">SLA Compliance Tracking</h4>
+          <p className="text-slate-400 max-w-sm mt-2">
+            Analytics engine is processing recent ticket data. Detailed performance charts will appear here shortly.
+          </p>
         </div>
 
         <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8">
-           <h4 className="text-white font-bold mb-6">Recent Activity</h4>
-           <div className="space-y-6">
-             {[1, 2, 3].map((_, i) => (
-               <div key={i} className="flex gap-4">
-                 <div className="w-10 h-10 rounded-full bg-slate-800 shrink-0 border border-slate-700 flex items-center justify-center">
-                    <Users size={16} className="text-slate-500" />
-                 </div>
-                 <div>
-                   <p className="text-sm text-slate-300"><span className="text-white font-bold">Agent Alpha</span> resolved ticket #402</p>
-                   <span className="text-[10px] text-slate-500 font-bold uppercase mt-1 block">12 mins ago</span>
-                 </div>
-               </div>
-             ))}
-           </div>
+          <h4 className="text-white font-bold mb-6">Recent Activity</h4>
+          <div className="space-y-6">
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-slate-800 shrink-0 border border-slate-700 flex items-center justify-center">
+                  <Users size={16} className="text-slate-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-slate-300"><span className="text-white font-bold">Agent Alpha</span> resolved ticket #402</p>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase mt-1 block">12 mins ago</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
