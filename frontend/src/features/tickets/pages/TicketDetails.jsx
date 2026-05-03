@@ -13,7 +13,8 @@ import {
   MoreVertical,
   CheckCircle,
   AlertCircle,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from "lucide-react";
 import Button from "../../auth/components/Button";
 import { formatDistanceToNow } from "date-fns";
@@ -152,13 +153,27 @@ const TicketDetails = () => {
                 <h3 className="text-white font-bold text-xl">Internal Discussion</h3>
                 <p className="text-slate-400 text-sm mt-1 max-w-sm">Collaborate with your team in real-time about this ticket. All messages are stored for future reference.</p>
               </div>
-              <Button onClick={() => setShowChat(true)} className="flex items-center gap-2 mt-2">
-                <MessageSquare size={18} />
-                Start Chat
-              </Button>
+              <div className="flex gap-4 mt-2">
+                <Button onClick={() => setShowChat(true)} className="flex items-center gap-2">
+                  <MessageSquare size={18} />
+                  Start Quick Chat
+                </Button>
+                <Button variant="outline" onClick={() => navigate(`/chat/${id}`)} className="flex items-center gap-2">
+                  <ExternalLink size={18} />
+                  Open Full Chat
+                </Button>
+              </div>
             </div>
           ) : (
-            <ChatBox ticketId={id} />
+            <div className="space-y-4">
+               <div className="flex justify-end">
+                  <button onClick={() => navigate(`/chat/${id}`)} className="text-xs text-emerald-500 hover:text-emerald-400 font-bold flex items-center gap-1 transition-colors">
+                    <ExternalLink size={12} />
+                    Maximize Chat
+                  </button>
+               </div>
+               <ChatBox ticketId={id} />
+            </div>
           )}
         </div>
 

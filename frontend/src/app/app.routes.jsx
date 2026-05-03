@@ -10,6 +10,7 @@ import TicketDetails from "../features/tickets/pages/TicketDetails";
 import KnowledgeBaseAdmin from "../features/knowledgeBase/pages/KnowledgeBaseAdmin";
 import WidgetSettings from "../features/widget/pages/WidgetSettings";
 import CreateTicket from "../features/tickets/pages/CreateTicket";
+import ChatPage from "../features/chat/pages/ChatPage";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
           // Common routes
           { path: "/tickets", element: <TicketList /> },
           { path: "/tickets/:id", element: <TicketDetails /> },
+          { path: "/chat/:ticketId", element: <ChatPage /> },
           { 
             path: "/settings", 
             element: <div className="text-white p-8">Settings coming soon...</div> 

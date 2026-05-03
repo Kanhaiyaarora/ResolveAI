@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Users,
   Ticket,
@@ -18,7 +18,8 @@ import { formatDistanceToNow } from "date-fns";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { stats, agents, activity, loading, fetchStats, fetchAgents, fetchActivity } = useTickets(user?.role);
+  const { stats, agents, activity, fetchStats, fetchAgents, fetchActivity } = useTickets(user?.role);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,19 +31,24 @@ const AdminDashboard = () => {
         ]);
       } catch (error) {
         console.error("Error loading dashboard data:", error);
+      } finally {
+        setInitialLoading(false);
       }
     };
 
     loadData();
-    const interval = setInterval(loadData, 10000); 
+    const interval = setInterval(() => {
+      // Silent polling — no loading state change
+      Promise.all([fetchStats(), fetchAgents(), fetchActivity()]).catch(console.error);
+    }, 10000);
     return () => clearInterval(interval);
   }, [fetchStats, fetchAgents, fetchActivity]);
 
   const cards = [
-    { label: "Total Tickets", value: stats?.total || 0, icon: Ticket, color: "text-blue-500", bg: "bg-blue-500/10", path: "/tickets" },
-    { label: "Open Issues", value: stats?.open || 0, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10", path: "/tickets?status=open" },
-    { label: "Resolved", value: stats?.resolved || 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10", path: "/tickets?status=resolved" },
-    { label: "Active Agents", value: agents.length, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10", path: "/agents" },
+    { label: "Total Tickets", value: stats?.total ?? 0, icon: Ticket, color: "text-blue-500", bg: "bg-blue-500/10", path: "/tickets" },
+    { label: "Open Issues", value: stats?.open ?? 0, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10", path: "/tickets?status=open" },
+    { label: "Resolved", value: stats?.resolved ?? 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10", path: "/tickets?status=resolved" },
+    { label: "Active Agents", value: agents?.length ?? 0, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10", path: "/tickets" },
   ];
 
   return (
@@ -78,7 +84,7 @@ const AdminDashboard = () => {
             </div>
             <p className="text-slate-400 text-sm font-medium">{card.label}</p>
             <h3 className="text-3xl font-bold text-white mt-1">
-              {loading ? "..." : card.value}
+              {initialLoading ? "..." : card.value}
             </h3>
           </motion.div>
         ))}
@@ -98,7 +104,7 @@ const AdminDashboard = () => {
         <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 overflow-hidden">
           <h4 className="text-white font-bold mb-6">Recent Activity</h4>
           <div className="space-y-6">
-            {loading ? (
+            {initialLoading ? (
                [1, 2, 3].map(i => (
                 <div key={i} className="flex gap-4 animate-pulse">
                    <div className="w-10 h-10 rounded-full bg-slate-800 shrink-0" />
@@ -108,7 +114,7 @@ const AdminDashboard = () => {
                    </div>
                 </div>
                ))
-            ) : activity.length > 0 ? (
+            ) : activity?.length > 0 ? (
               activity.map((item) => (
                 <div 
                   key={item._id} 

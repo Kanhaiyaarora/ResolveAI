@@ -20,20 +20,20 @@ export const useTickets = (role) => {
   const fetchActivity = useCallback(async () => {
     try {
       const data = await getRecentActivity();
-      setActivity(data.activity);
+      setActivity(data.activity || []);
       return data.activity;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch activity");
+      console.error("Failed to fetch activity:", err);
     }
   }, []);
 
   const fetchAgents = useCallback(async () => {
     try {
       const data = await getAgents();
-      setAgents(data.agents);
+      setAgents(data.agents || []);
       return data.agents;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch agents");
+      console.error("Failed to fetch agents:", err);
     }
   }, []);
 
@@ -46,11 +46,10 @@ export const useTickets = (role) => {
           role === "admin"
             ? await getAllTickets(filters)
             : await getMyTickets();
-        setTickets(data.tickets);
+        setTickets(data.tickets || []);
         return data.tickets;
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch tickets");
-        throw err;
       } finally {
         setLoading(false);
       }
@@ -58,23 +57,20 @@ export const useTickets = (role) => {
     [role],
   );
 
+  // fetchStats should NOT set global loading — it runs on a 10s poll
   const fetchStats = useCallback(async () => {
-    setLoading(true);
     try {
       const data = await getTicketStats();
       setStats(data.stats);
       return data.stats;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch stats");
-    } finally {
-      setLoading(false);
+      console.error("Failed to fetch stats:", err);
     }
   }, []);
 
   const updateStatus = async (id, status) => {
     try {
       await updateTicketStatus(id, status);
-      // Optimistic update or just refresh
       setTickets((prev) =>
         prev.map((t) => (t._id === id ? { ...t, status } : t)),
       );
@@ -87,7 +83,6 @@ export const useTickets = (role) => {
   const assignAgent = async (id, agentIds) => {
     try {
       await assignTicketApi(id, agentIds);
-      // Refresh to get full agent objects if needed, or update locally
       await fetchTickets();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to assign agent");

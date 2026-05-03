@@ -35,6 +35,12 @@ ticketRouter.get(
   getMyTicketsController,
 );
 
+//  GET STATS (must be BEFORE /:id)
+ticketRouter.get("/stats", authenticateUser, getTicketStatsController);
+
+//  GET RECENT ACTIVITY (must be BEFORE /:id)
+ticketRouter.get("/activity/recent", authenticateUser, getRecentActivityController);
+
 //  ASSIGN TICKET (ADMIN)
 ticketRouter.patch(
   "/:id/assign",
@@ -51,13 +57,7 @@ ticketRouter.patch(
   updateTicketStatusController,
 );
 
-//  GET STATS
-ticketRouter.get("/stats", authenticateUser, getTicketStatsController);
-
-//  GET TICKET BY ID
+//  GET TICKET BY ID (must be LAST — catches all /:id patterns)
 ticketRouter.get("/:id", authenticateUser, getTicketByIdController);
-
-//  GET RECENT ACTIVITY
-ticketRouter.get("/activity/recent", authenticateUser, getRecentActivityController);
 
 export default ticketRouter;
