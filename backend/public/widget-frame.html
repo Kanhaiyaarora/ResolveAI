@@ -74,92 +74,45 @@
   var companyId = params.get("cid") || "";
   var sessionId = params.get("sid") || "";
   var API_BASE  = params.get("api") || window.location.origin;
+  var welcomeMsg = params.get("welcome") || "Hi! How can I help you?";
   
-  var currentConvId   = params.get("convId") || null;
-  var currentTicketId = params.get("ticketId") || null;
-  var isEscalated     = !!(currentTicketId && currentTicketId !== "null" && currentTicketId !== "");
+  var currentConvId   = null;
+  var currentTicketId = null;
+  var isEscalated     = false;
   
-  var currentBotName = "Support Bot";
+  var currentBotName = params.get("botName") || "Support Bot";
   var socket = null;
   var messagesEl = document.getElementById("messages");
   var inputEl = document.getElementById("inputEl");
   var sendBtn = document.getElementById("sendBtn");
   var typingEl = document.getElementById("typingEl");
 
-  // ─── 2. Fetch Settings ──────────────────────────────────────────────────
-  fetch(API_BASE + "/api/company/widget-settings?cid=" + companyId + "&t=" + Date.now())
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        var s = data.settings;
-        document.documentElement.style.setProperty("--primary", s.primaryColor || "#10b981");
-        document.getElementById("botNameEl").textContent = s.botName || "Support Bot";
-        document.getElementById("avatarEl").textContent = (s.botName || "S").charAt(0).toUpperCase();
-        currentBotName = s.botName || "Support Bot";
-        
-        // Only show welcome if no history is about to be loaded
-        setTimeout(function() {
-            if (messagesEl.children.length === 0) {
-              addBotMessage(s.welcomeMessage || "Hi! How can I help you?");
-            }
-        }, 800);
-      }
-    });
+  // ─── 2. Initial Setup ────────────────────────────────────────────────────
+  document.documentElement.style.setProperty("--primary", params.get("color") || "#10b981");
+  document.getElementById("botNameEl").textContent = currentBotName;
+  document.getElementById("avatarEl").textContent = currentBotName.charAt(0).toUpperCase();
+  
+  // Always show welcome message on fresh start
+  addBotMessage(welcomeMsg);
 
-  // ─── 3. Persistence & Reconnection (FIXED: PUBLIC ENDPOINT) ─────────────
-  // We use sessionId to fetch history as a customer (no token needed)
-  if (sessionId) {
-    fetch(API_BASE + "/api/chat/customer-history/" + sessionId + "?companyId=" + companyId)
-      .then(r => r.json())
-      .then(data => {
-        if (data.success && data.messages.length > 0) {
-          messagesEl.innerHTML = "";
-          data.messages.forEach(msg => {
-            if (msg.senderType === "customer") addUserMessage(msg.content);
-            else if (msg.senderType === "agent") addAgentMessage(msg.content);
-            else addBotMessage(msg.content);
-          });
-          
-          // Restore Ticket ID if it was lost in params but exists in DB
-          if (data.ticketId && (!currentTicketId || currentTicketId === "null")) {
-              currentTicketId = data.ticketId;
-              isEscalated = true;
-              startSocket();
-          }
-        }
-      })
-      .catch(err => console.error("History fetch error:", err));
-  }
-
-  if (isEscalated) startSocket();
-
+  // ─── 3. Socket Logic ─────────────────────────────────────────────────────
   function startSocket() {
     if (socket && socket.connected) return;
     document.getElementById("escalationBanner").style.display = "flex";
     
     socket = io(API_BASE, { 
       query: { sessionId, companyId }, 
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionAttempts: 10
+      transports: ['websocket']
     });
 
     socket.on("connect", function() {
-      console.log("Socket connected! Room:", currentTicketId);
-      if (currentTicketId && currentTicketId !== "null") {
-        socket.emit("join_ticket", currentTicketId);
-      }
+      if (currentTicketId) socket.emit("join_ticket", currentTicketId);
     });
 
     socket.on("receive_message", function(data) {
-      // Logic to show agent message
       if (data.senderRole !== 'customer') {
-          addAgentMessage(data.message);
+          addAgentMessage(data.message || data.content || data.text);
       }
-    });
-    
-    socket.on("error", function(err) {
-        console.error("Socket Error:", err);
     });
   }
 
@@ -170,20 +123,12 @@
     inputEl.value = "";
     addUserMessage(text);
     
-    // Check escalation status
-    if (isEscalated && currentTicketId && currentTicketId !== "null") {
-      if (socket && socket.connected) {
-          socket.emit("send_message", { 
-            ticketId: currentTicketId, 
-            conversationId: currentConvId, 
-            message: text 
-          });
-      } else {
-          // If socket disconnected but we are escalated, try to restart and send via bot as fallback?
-          // For now, let's just retry socket if it exists
-          startSocket();
-          // Fallback to bot if needed, but ideally socket should stay up
-      }
+    if (isEscalated && socket && socket.connected) {
+      socket.emit("send_message", { 
+        ticketId: currentTicketId, 
+        conversationId: currentConvId, 
+        message: text 
+      });
     } else {
       askBot(text);
     }
@@ -204,8 +149,6 @@
         currentConvId = data.conversationId;
         currentTicketId = data.ticketId;
         isEscalated = true;
-        window.parent.postMessage({ type: "RAI_CONV_ID", conversationId: currentConvId }, "*");
-        window.parent.postMessage({ type: "RAI_TICKET_ID", ticketId: currentTicketId }, "*");
         startSocket();
       }
     });

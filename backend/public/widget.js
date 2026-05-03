@@ -11,19 +11,16 @@
     return;
   }
 
-  // ─── 2. Session & conversation persistence via localStorage ────────────────
-  var SESSION_KEY = "resolveai_session_" + companyId;
-  var CONV_KEY    = "resolveai_conv_" + companyId;
-  var TICKET_KEY  = "resolveai_ticket_" + companyId;
+  // ─── 2. Fresh Session on every reload ─────────────────────────────────────
+  // Humne localStorage se restore karna band kar diya hai taaki har baar fresh start ho
+  var sessionId = "sess_" + Math.random().toString(36).substr(2, 10) + "_" + Date.now();
+  
+  var CONV_KEY = 'rai_conversation_id_' + companyId;
+  var TICKET_KEY = 'rai_ticket_id_' + companyId;
+  localStorage.removeItem(CONV_KEY);
+  localStorage.removeItem(TICKET_KEY);
 
-  var sessionId = localStorage.getItem(SESSION_KEY);
-  if (!sessionId) {
-    sessionId =
-      "sess_" + Math.random().toString(36).substr(2, 10) + "_" + Date.now();
-    localStorage.setItem(SESSION_KEY, sessionId);
-  }
-
-  // ─── 3. Fetch widget settings with cache buster ───────────────────────────
+  // ─── 3. Fetch widget settings ─────────────────────────────────────────────
   fetch(API_BASE + "/api/company/widget-settings?cid=" + companyId + "&t=" + Date.now())
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -35,8 +32,7 @@
     });
 
   function initWidget(settings) {
-    // Check both primaryColor and color (for backward compatibility if needed)
-    var color    = settings.primaryColor || settings.color || "#10b981";
+    var color    = settings.primaryColor || "#10b981";
     var position = settings.position      || "right";
     var botName  = settings.botName       || "Support Bot";
     var welcome  = settings.welcomeMessage|| "Hi! How can we help you today?";
@@ -71,22 +67,15 @@
     // ─── 5. Floating bubble button ───────────────────────────────────────────
     var btn = document.createElement("button");
     btn.id = "rai-btn";
-    btn.setAttribute("aria-label", "Open support chat");
-    btn.style.backgroundColor = color; // Force apply color directly to element
+    btn.style.backgroundColor = color;
     btn.innerHTML = chatIcon();
     document.body.appendChild(btn);
 
-    // ─── 6. Iframe (UI lives here — fully isolated CSS) ──────────────────────
-    var convId = localStorage.getItem(CONV_KEY) || "";
-    var ticketId = localStorage.getItem(TICKET_KEY) || "";
-    
     var iframeSrc =
       API_BASE + "/widget-frame.html" +
       "?cid="      + encodeURIComponent(companyId) +
       "&sid="      + encodeURIComponent(sessionId) +
       "&color="    + encodeURIComponent(color) +
-      "&convId="   + encodeURIComponent(convId) +
-      "&ticketId=" + encodeURIComponent(ticketId) +
       "&botName="  + encodeURIComponent(botName) +
       "&welcome="  + encodeURIComponent(welcome) +
       "&api="      + encodeURIComponent(API_BASE);
@@ -94,10 +83,9 @@
     var iframe = document.createElement("iframe");
     iframe.id = "rai-frame";
     iframe.src = iframeSrc;
-    iframe.setAttribute("allow", "microphone");
     document.body.appendChild(iframe);
 
-    // ─── 7. Toggle open / close ───────────────────────────────────────────────
+    // ─── 6. Toggle open / close ───────────────────────────────────────────────
     var isOpen = false;
     btn.addEventListener("click", function () {
       isOpen = !isOpen;
@@ -105,16 +93,9 @@
       btn.innerHTML = isOpen ? closeIcon() : chatIcon();
     });
 
-    // ─── 8. Listen for messages from the iframe ───────────────────────────────
+    // ─── 7. Listen for messages ───────────────────────────────────────────────
     window.addEventListener("message", function (event) {
       if (event.origin !== API_BASE) return;
-
-      if (event.data && event.data.type === "RAI_CONV_ID") {
-        localStorage.setItem(CONV_KEY, event.data.conversationId);
-      }
-      if (event.data && event.data.type === "RAI_TICKET_ID") {
-        localStorage.setItem(TICKET_KEY, event.data.ticketId);
-      }
       if (event.data && event.data.type === "RAI_CLOSE") {
         isOpen = false;
         iframe.style.display = "none";
