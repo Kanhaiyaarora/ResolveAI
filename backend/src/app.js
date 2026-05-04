@@ -49,17 +49,17 @@ app.use("/api/messages", messageRouter);
 app.use("/api/ai", aiRouter);
 
 // Catch-all wildcard route for undefined API endpoints
-app.use("/api/*", (req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
-  });
-});
+// app.use("/api/*", (req, res, next) => {
+//   res.status(404).json({
+//     success: false,
+//     message: `Route ${req.originalUrl} not found`,
+//   });
+// });
 
 // Catch-all route to serve the React app for non-API requests
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+// });
 
 passport.use(
   new GoogleStrategy(
