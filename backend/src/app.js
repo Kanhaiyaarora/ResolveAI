@@ -1,8 +1,6 @@
 import express, { urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { CONFIG } from "./config/config.js";
 import morgan from "morgan";
 import path from "path";
@@ -18,29 +16,27 @@ import aiRouter from "./routes/ai.routes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
 
 // Serve widget.js and widget-frame.html as static files
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "../../frontend/dist")));
-
 // middlewares
-app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5500", "http://127.0.0.1:5500"], // Added common test origins
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+    ], // Added common test origins
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(passport.initialize());
 app.use(morgan("dev"));
-
-
-app.use(express.static("./public"));
-
 
 // api endpoints
 app.use("/api/auth", authRouter);
@@ -52,32 +48,16 @@ app.use("/api/messages", messageRouter);
 app.use("/api/ai", aiRouter);
 
 // Catch-all wildcard route for undefined API endpoints
-// app.use("/api/*", (req, res, next) => {
-//   res.status(404).json({
-//     success: false,
-//     message: `Route ${req.originalUrl} not found`,
-//   });
-// });
+app.use(/^\/api\/.*$/, (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
 
 // Catch-all route to serve the React app for non-API requests
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
-// });
-
-
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: CONFIG.GOOGLE_CLIENT_ID,
-      clientSecret: CONFIG.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
-    },
-    (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
-    },
-  ),
-);
-
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
 export default app;
