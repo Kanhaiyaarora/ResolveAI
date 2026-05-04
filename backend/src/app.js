@@ -45,6 +45,14 @@ app.use("/api/company", companyRouter);
 app.use("/api/messages", messageRouter);
 app.use("/api/ai", aiRouter);
 
+// Catch-all wildcard route for undefined API endpoints
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
+
 passport.use(
   new GoogleStrategy(
     {
