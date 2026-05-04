@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   // ── Navbar scroll state ──
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -158,8 +160,14 @@ export default function Home() {
 
           {/* Desktop CTA */}
           <div className="hide-mob" style={{ display:"flex", gap:12, alignItems:"center" }}>
-            <button onClick={() => navigate("/login")} className="btn-gl" style={{ padding:"8px 20px", fontSize:13 }}>Sign in</button>
-            <button onClick={() => navigate("/register")} className="btn-dk" style={{ padding:"8px 20px", fontSize:13 }}>Get started</button>
+            {!isAuthenticated ? (
+              <>
+                <button onClick={() => navigate("/login")} className="btn-gl" style={{ padding:"8px 20px", fontSize:13 }}>Sign in</button>
+                <button onClick={() => navigate("/register")} className="btn-dk" style={{ padding:"8px 20px", fontSize:13 }}>Get started</button>
+              </>
+            ) : (
+              <button onClick={() => navigate(`/${user?.role || ''}`)} className="btn-dk" style={{ padding:"8px 20px", fontSize:13 }}>Go to Dashboard</button>
+            )}
           </div>
 
           {/* Hamburger */}
@@ -175,8 +183,14 @@ export default function Home() {
           <div style={{ background:"var(--color-surface)", borderTop:"1px solid var(--color-border)", padding:"20px 24px 28px" }}>
             {navLinks.map((l) => <a key={l} href="#" style={{ display:"block", fontWeight:500, fontSize:15, color:"#ffffff", padding:"12px 0", borderBottom:"1px solid var(--color-border)", textDecoration:"none" }}>{l}</a>)}
             <div style={{ display:"flex", gap:12, marginTop:24 }}>
-              <button onClick={() => navigate("/login")} className="btn-gl" style={{ flex:1, justifyContent:"center" }}>Sign in</button>
-              <button onClick={() => navigate("/register")} className="btn-dk" style={{ flex:1, justifyContent:"center" }}>Get started</button>
+              {!isAuthenticated ? (
+                <>
+                  <button onClick={() => navigate("/login")} className="btn-gl" style={{ flex:1, justifyContent:"center" }}>Sign in</button>
+                  <button onClick={() => navigate("/register")} className="btn-dk" style={{ flex:1, justifyContent:"center" }}>Get started</button>
+                </>
+              ) : (
+                <button onClick={() => navigate(`/${user?.role || ''}`)} className="btn-dk" style={{ flex:1, justifyContent:"center" }}>Go to Dashboard</button>
+              )}
             </div>
           </div>
         )}
@@ -210,11 +224,17 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="h1-in4" style={{ display:"flex", gap:16, justifyContent:"center", flexWrap:"wrap" }}>
-            <button onClick={() => navigate("/register")} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Start building free</button>
-            <button className="btn-gl" style={{ fontSize:15, padding:"16px 36px" }}>
-              Watch demo
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: 4 }}><polygon points="5 3 19 12 5 21 5 3" /></svg>
-            </button>
+            {!isAuthenticated ? (
+              <>
+                <button onClick={() => navigate("/register")} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Start building free</button>
+                <button className="btn-gl" style={{ fontSize:15, padding:"16px 36px" }}>
+                  Watch demo
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: 4 }}><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                </button>
+              </>
+            ) : (
+              <button onClick={() => navigate(`/${user?.role || ''}`)} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Go to Dashboard</button>
+            )}
           </div>
 
           {/* Social proof */}
@@ -335,11 +355,17 @@ export default function Home() {
             </h2>
             <p style={{ fontSize:17, color:"var(--color-text-dim)", maxWidth:440, margin:"0 auto 48px" }}>Deploy your AI agent in minutes. Start for free.</p>
             <div style={{ display:"flex", gap:16, justifyContent:"center", flexWrap:"wrap" }}>
-              <button onClick={() => navigate("/register")} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Start for free</button>
-              <button style={{ display:"inline-flex", alignItems:"center", background:"transparent", color:"#ffffff", fontWeight:600, fontSize:15, padding:"16px 32px", borderRadius:99, border:"1.5px solid var(--color-border)", cursor:"pointer", transition:"all .2s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor="var(--color-primary)"; e.currentTarget.style.background="rgba(16,185,129,0.05)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor="var(--color-border)"; e.currentTarget.style.background="transparent"; }}
-              >Talk to sales</button>
+              {!isAuthenticated ? (
+                <>
+                  <button onClick={() => navigate("/register")} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Start for free</button>
+                  <button style={{ display:"inline-flex", alignItems:"center", background:"transparent", color:"#ffffff", fontWeight:600, fontSize:15, padding:"16px 32px", borderRadius:99, border:"1.5px solid var(--color-border)", cursor:"pointer", transition:"all .2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor="var(--color-primary)"; e.currentTarget.style.background="rgba(16,185,129,0.05)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor="var(--color-border)"; e.currentTarget.style.background="transparent"; }}
+                  >Talk to sales</button>
+                </>
+              ) : (
+                <button onClick={() => navigate(`/${user?.role || ''}`)} className="btn-gd" style={{ fontSize:15, padding:"16px 36px" }}>Go to Dashboard</button>
+              )}
             </div>
           </div>
         </div>
