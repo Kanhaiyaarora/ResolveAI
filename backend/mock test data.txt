@@ -1,0 +1,211 @@
+========================================
+RESOLVEAI - COMPANY TEST DATASET
+========================================
+
+Company Name: ResolveAI
+Industry: B2B SaaS / AI Customer Support Platform
+Founded: 2024
+Headquarters: San Francisco, California, USA
+Website: www.resolveai.io
+Company Size: 51-200 employees
+Business Model: Subscription-Based SaaS
+Target Market: Mid-size to Enterprise Businesses
+Core Offering: AI-powered customer support automation for businesses
+
+----------------------------------------
+COMPANY OVERVIEW
+----------------------------------------
+ResolveAI provides advanced artificial intelligence solutions for customer service teams, helping businesses automate support tickets, live chat, knowledge base generation, and customer insights. The platform integrates with CRM systems, helpdesk software, and communication channels to improve customer satisfaction while reducing operational costs.
+
+Mission:
+To transform customer support through intelligent automation, making support faster, smarter, and more scalable.
+
+Vision:
+To become the leading AI customer support infrastructure for B2B enterprises globally.
+
+----------------------------------------
+PRODUCT FEATURES
+----------------------------------------
+1. AI Chatbot Automation
+   - 24/7 customer interaction
+   - Multilingual support
+   - Intent recognition
+   - Automated issue resolution
+
+2. Ticket Management AI
+   - Auto-categorization
+   - Priority prediction
+   - SLA monitoring
+   - Escalation workflows
+
+3. Knowledge Base Generator
+   - FAQ automation
+   - Dynamic article generation
+   - Internal team documentation
+
+4. Analytics Dashboard
+   - Customer sentiment analysis
+   - Response time metrics
+   - Support team productivity
+   - Revenue impact reports
+
+5. Integrations
+   - Salesforce
+   - HubSpot
+   - Zendesk
+   - Freshdesk
+   - Slack
+   - Microsoft Teams
+
+----------------------------------------
+TARGET CUSTOMERS
+----------------------------------------
+Primary Segments:
+- SaaS Companies
+- E-commerce Enterprises
+- Healthcare Providers
+- Financial Services
+- Telecommunications
+- IT Support Agencies
+
+Ideal Customer Profile:
+- 100+ support tickets/day
+- 50+ employees
+- Global customer base
+- Existing CRM/helpdesk systems
+
+----------------------------------------
+PRICING STRUCTURE
+----------------------------------------
+Starter Plan: $99/month
+- Up to 5 agents
+- Basic chatbot
+- Email support
+
+Growth Plan: $499/month
+- Up to 25 agents
+- Advanced AI automation
+- CRM integrations
+- Analytics dashboard
+
+Enterprise Plan: Custom Pricing
+- Unlimited agents
+- Dedicated AI models
+- API access
+- White-label support
+- Dedicated account manager
+
+----------------------------------------
+COMPETITIVE ADVANTAGES
+----------------------------------------
+- Faster deployment than competitors
+- Industry-specific AI training
+- Lower operational costs
+- High customization
+- Enterprise-grade security
+- SOC 2 compliance
+- GDPR compliant
+
+----------------------------------------
+SAMPLE CLIENTS
+----------------------------------------
+1. TechNova Solutions
+   Industry: SaaS
+   Employees: 500
+   Result: 42% reduction in ticket response time
+
+2. ShopVerse Global
+   Industry: E-commerce
+   Employees: 1,200
+   Result: 35% increase in customer satisfaction
+
+3. Mediline Care
+   Industry: Healthcare
+   Employees: 800
+   Result: 28% operational cost savings
+
+----------------------------------------
+KEY METRICS
+----------------------------------------
+Annual Recurring Revenue (ARR): $8.5M
+Monthly Active Clients: 1,450
+Average Customer Retention Rate: 91%
+Average Ticket Deflection Rate: 63%
+Net Promoter Score (NPS): 72
+
+----------------------------------------
+DEPARTMENTS
+----------------------------------------
+Engineering: 40 employees
+Sales: 25 employees
+Marketing: 15 employees
+Customer Success: 30 employees
+Operations: 10 employees
+Leadership: 8 employees
+
+----------------------------------------
+LEADERSHIP TEAM
+----------------------------------------
+CEO: Sarah Mitchell
+CTO: Daniel Chen
+COO: Priya Raman
+VP Sales: Michael Torres
+VP Product: Emma Johnson
+
+----------------------------------------
+FUNDING
+----------------------------------------
+Seed Round: $2M (2024)
+Series A: $12M (2025)
+Key Investors:
+- FutureTech Ventures
+- ScaleGrid Capital
+- Horizon AI Partners
+
+----------------------------------------
+USE CASES
+----------------------------------------
+- Automated customer query handling
+- Internal employee IT helpdesk
+- Sales lead qualification
+- Customer onboarding support
+- Complaint management
+- Subscription retention workflows
+
+----------------------------------------
+SECURITY & COMPLIANCE
+----------------------------------------
+- End-to-end encryption
+- Role-based access control
+- GDPR
+- SOC 2 Type II
+- ISO 27001 roadmap
+- Audit logs
+- Data residency options
+
+----------------------------------------
+SAMPLE API ENDPOINTS
+----------------------------------------
+POST /api/v1/chat/respond
+GET /api/v1/tickets
+POST /api/v1/knowledgebase/create
+GET /api/v1/analytics/dashboard
+POST /api/v1/integrations/connect
+
+----------------------------------------
+TEST DATA TAGS
+----------------------------------------
+#AI
+#CustomerSupport
+#B2B
+#SaaS
+#Automation
+#CRM
+#Enterprise
+#Chatbot
+#Analytics
+#ResolveAI
+
+========================================
+END OF DATASET
+========================================
