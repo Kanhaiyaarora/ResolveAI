@@ -2,6 +2,13 @@
 
 > A smart, scalable customer support platform built using MERN stack + AI to automate and manage support workflows.
 
+## 🌐 Live Demo
+
+Experience the application live:
+
+🔗 https://resolveai-2x3j.onrender.com
+
+
 ---
 ### LOGIN CREDENTIALS
 
