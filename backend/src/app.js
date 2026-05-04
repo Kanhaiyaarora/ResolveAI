@@ -39,6 +39,9 @@ app.use(passport.initialize());
 app.use(morgan("dev"));
 
 
+app.use(express.static("./public"));
+
+
 // api endpoints
 app.use("/api/auth", authRouter);
 app.use("/api/tickets", ticketRouter);
@@ -60,6 +63,8 @@ app.use("/api/ai", aiRouter);
 // app.get("*", (req, res) => {
 //   res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
 // });
+
+
 
 passport.use(
   new GoogleStrategy(
