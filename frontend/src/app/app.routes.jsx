@@ -19,7 +19,7 @@ import Home from "../features/home/HomePage";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />
+    element: <Navigate to="/Home" replace />
   },
   {
     path: "/Home",
