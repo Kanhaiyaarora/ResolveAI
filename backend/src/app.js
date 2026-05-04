@@ -24,6 +24,9 @@ const app = express();
 // Serve widget.js and widget-frame.html as static files
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+
 // middlewares
 app.use(cors({
   origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5500", "http://127.0.0.1:5500"], // Added common test origins
@@ -46,11 +49,16 @@ app.use("/api/messages", messageRouter);
 app.use("/api/ai", aiRouter);
 
 // Catch-all wildcard route for undefined API endpoints
-app.use((req, res, next) => {
+app.use("/api/*", (req, res, next) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
   });
+});
+
+// Catch-all route to serve the React app for non-API requests
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
 });
 
 passport.use(
