@@ -215,3 +215,6 @@ Dashboard reflects changes
 - These improvements aim to evolve ResolveAI into a fully autonomous, AI-driven customer support ecosystem.
 
 This project demonstrates a real-world SaaS architecture with AI + real-time capabilities.
+
+High engagement LinkedIn Post 
+https://www.linkedin.com/posts/kanhaiya-arora_hackathon-buildinpublic-fullstackdevelopment-activity-7454847101999452161-UY79
